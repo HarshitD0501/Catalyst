@@ -99,7 +99,7 @@ export function isReportAccessible(report, patientId = null, options = {}) {
     patientId !== null && patientId !== undefined
       ? patientId
       : (typeof window !== "undefined"
-          ? window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("aushadh_patient_id")
+          ? window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("aushadh_patient_id")
           : null);
 
   if (report.patient_id) {
@@ -127,7 +127,7 @@ export async function savePrescriptionReport(report, patientId = null) {
       ? patientId
       : (report.patient_id ||
         (typeof window !== "undefined"
-          ? window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("aushadh_patient_id")
+          ? window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("aushadh_patient_id")
           : null));
 
   if (resolvedPid && !report.patient_id) {
@@ -156,7 +156,7 @@ export async function getPrescriptionReport(reportId, patientId = null, options 
     patientId !== null && patientId !== undefined
       ? patientId
       : (typeof window !== "undefined"
-          ? window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("aushadh_patient_id")
+          ? window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("aushadh_patient_id")
           : null);
 
   const db = await openDatabase();
@@ -208,7 +208,7 @@ export async function deletePrescriptionReport(reportId, patientId = null) {
     patientId !== null && patientId !== undefined
       ? patientId
       : (typeof window !== "undefined"
-          ? window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("aushadh_patient_id")
+          ? window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("catalyst_patient_id") || window.localStorage.getItem("aushadh_patient_id")
           : null);
 
   const db = await openDatabase();
@@ -382,6 +382,7 @@ export async function addOrUpdateReportWithItem(
   }
 
   if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("catalyst:report_updated", { detail: { reportId } }));
     window.dispatchEvent(new CustomEvent("catalyst:report_updated", { detail: { reportId } }));
   }
 

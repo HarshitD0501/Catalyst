@@ -28,9 +28,9 @@ import config
 import prompt
 from backend_client import BackendClient, login_demo, safe
 
-logger = logging.getLogger("catalyst.agent")
+logger = logging.getLogger("caresetu.agent")
 
-app = FastAPI(title="Sahayak — Catalyst text chatbot")
+app = FastAPI(title="Sahayak — CareSetu text chatbot")
 _genai = genai.Client(api_key=config.GOOGLE_API_KEY)
 
 

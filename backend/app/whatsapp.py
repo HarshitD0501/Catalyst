@@ -458,9 +458,9 @@ async def send_interactive_slot_reminder(
         "type": "interactive",
         "interactive": {
             "type": "button",
-            "header": {"type": "text", "text": "🔔 Catalyst Dawa Checklist"},
+            "header": {"type": "text", "text": "🔔 CareSetu Dawa Checklist"},
             "body": {"text": body_text},
-            "footer": {"text": "सहायक (Catalyst Health Companion)"},
+            "footer": {"text": "सहायक (CareSetu Health Companion)"},
             "action": {
                 "buttons": [
                     {
@@ -744,13 +744,13 @@ async def process_webhook_payload(payload: dict[str, Any], db: Session) -> dict[
                             logger.info("[WHATSAPP] Patient %s opted out of WhatsApp reminders via '%s'", patient.id, body)
                             await send_text_message(
                                 from_number,
-                                f"नमस्ते {patient.name}! आपने Catalyst WhatsApp रिमाइंडर सेवा बंद (Opt-Out) कर दी है। अब आपको रिमाइंडर नहीं भेजे जाएंगे। यदि आप इसे पुनः चालू करना चाहते हैं तो 'START' या 'SHURU' लिखकर भेजें।",
+                                f"नमस्ते {patient.name}! आपने CareSetu WhatsApp रिमाइंडर सेवा बंद (Opt-Out) कर दी है। अब आपको रिमाइंडर नहीं भेजे जाएंगे। यदि आप इसे पुनः चालू करना चाहते हैं तो 'START' या 'SHURU' लिखकर भेजें।",
                             )
                             results.append({"action": "opted_out", "patient_id": patient.id})
                         else:
                             await send_text_message(
                                 from_number,
-                                "Catalyst: You have opted out of WhatsApp reminders. Reply START anytime to resume.",
+                                "CareSetu: You have opted out of WhatsApp reminders. Reply START anytime to resume.",
                             )
                             results.append({"action": "opted_out", "phone": from_number})
                         continue
@@ -768,13 +768,13 @@ async def process_webhook_payload(payload: dict[str, Any], db: Session) -> dict[
                             logger.info("[WHATSAPP] Patient %s opted in to WhatsApp reminders via '%s'", patient.id, body)
                             await send_text_message(
                                 from_number,
-                                f"नमस्ते {patient.name}! आपकी Catalyst WhatsApp रिमाइंडर सेवा पुनः चालू (Opt-In) कर दी गई है। आपको समय पर दवा के रिमाइंडर प्राप्त होंगे। रोकने के लिए 'STOP' लिखें।",
+                                f"नमस्ते {patient.name}! आपकी CareSetu WhatsApp रिमाइंडर सेवा पुनः चालू (Opt-In) कर दी गई है। आपको समय पर दवा के रिमाइंडर प्राप्त होंगे। रोकने के लिए 'STOP' लिखें।",
                             )
                             results.append({"action": "opted_in", "patient_id": patient.id})
                         else:
                             await send_text_message(
                                 from_number,
-                                "Catalyst: You have resubscribed to WhatsApp reminders. Reply STOP anytime to opt out.",
+                                "CareSetu: You have resubscribed to WhatsApp reminders. Reply STOP anytime to opt out.",
                             )
                             results.append({"action": "opted_in", "phone": from_number})
                         continue

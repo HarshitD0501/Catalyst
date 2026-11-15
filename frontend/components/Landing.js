@@ -27,13 +27,22 @@ import {
   Pill,
   CalendarClock,
   Sparkles,
+  Users,
+  Volume2,
+  VolumeX,
+  Bell,
+  Clock,
+  KeyRound,
+  Send,
+  HeartHandshake,
+  RefreshCw,
 } from "lucide-react";
 
 // ---- Verified FAQs (WAI-ARIA Accordion) ----
 const FAQS = [
   {
     q: "What is Catalyst and who is it designed for?",
-    a: "Catalyst is an intelligent elderly care, medication scheduling, and family coordination companion. It is designed for seniors managing multi-condition prescriptions and family caregivers who need real-time adherence tracking, shared profiles, and proactive reminders.",
+    a: "Catalyst is an intelligent elderly care, medication scheduling, and family coordination platform. It is designed for seniors managing multi-condition prescriptions and family caregivers who need real-time adherence tracking, shared profiles, and proactive multi-channel reminders.",
   },
   {
     q: "How does the safety interaction check work?",
@@ -45,7 +54,7 @@ const FAQS = [
   },
   {
     q: "How do caregivers access a patient's records?",
-    a: "Caregivers can only access a patient's health records after the patient grants explicit linked consent. Access is authenticated server-side on every request, ensuring access isolation between family accounts.",
+    a: "Caregivers can only access an elderly individual's health records through secure, passcode-based Care Circles with patient consent. Access is authenticated server-side on every request, ensuring granular permission control (Care Manager vs Viewer).",
   },
   {
     q: "What are Jan Aushadhi generic medicines?",
@@ -107,17 +116,17 @@ export default function Landing({
             {/* Context Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-ui-surface border border-ui-border-decorative text-ui-text text-xs font-semibold shadow-sm">
               <span className="w-2 h-2 rounded-full bg-ui-blue" aria-hidden="true" />
-              <span>Prescription clarity for patients and caregivers</span>
+              <span>Elderly Care & Family Coordination Bridge</span>
             </div>
 
             {/* Concise, Balanced H1 */}
             <h1 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-semibold text-ui-text leading-[1.15] tracking-tight">
-              Understand prescriptions, safety warnings, and fair prices.
+              Smart elderly care, connected families, zero missed doses.
             </h1>
 
             {/* Support Copy with Medical Disclaimer */}
             <p className="text-base sm:text-lg text-ui-text-secondary font-sans leading-relaxed">
-              Catalyst helps families digitize prescriptions, track elderly medication schedules, catch potential interaction warnings, and coordinate family care circles — while deferring every diagnosis and clinical treatment decision to your doctor.
+              Catalyst bridges the gap between aging parents, loving families, and essential healthcare. Automated medication schedules, passcode-protected Care Circles, bilingual voice check-ins, and proactive email & doctor appointment reminders.
             </p>
 
             {/* Call to Actions */}
@@ -152,28 +161,11 @@ export default function Landing({
             </div>
           </div>
 
-          {/* Right: Protected Player Card (7/12 on lg) */}
+          {/* Right: Catalyst Telemetry & Companion Card (7/12 on lg) */}
           <div className="lg:col-span-7 relative flex flex-col items-center justify-center lg:items-end w-full">
-            {/* Decorative arrow: visible on tablet/desktop, hidden on small mobile */}
-            <svg
-              className="absolute -top-10 -left-8 w-20 h-20 text-brand-navy/20 transform rotate-12 z-0 hidden md:block pointer-events-none"
-              viewBox="0 0 100 100"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path d="M10,50 Q30,20 60,10" markerEnd="url(#hero-arrowhead)" />
-              <defs>
-                <marker id="hero-arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                  <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" />
-                </marker>
-              </defs>
-            </svg>
-
-            <SahayakPlayerCard onLaunchDemo={onOpenAuth || (() => onSelectDemo("ramesh"))} />
-            <p className="mt-2 text-[11px] font-medium text-ui-text-secondary text-center lg:text-right" aria-label="Illustration notice">
-              * Illustrative preview of Sahayak adherence check-in and caregiver sync.
+            <CatalystCompanionCard onLaunchDemo={onOpenAuth || (() => onSelectDemo("ramesh"))} />
+            <p className="mt-2.5 text-[11px] font-medium text-ui-text-secondary text-center lg:text-right" aria-label="Illustration notice">
+              * Live interactive preview of Catalyst senior voice check-in, medication adherence, and Care Circle synchronization.
             </p>
           </div>
         </div>
@@ -258,7 +250,7 @@ export default function Landing({
                 From paper slips to a coordinated family schedule.
               </h2>
               <p className="text-sm text-ui-text-secondary leading-relaxed">
-                Chronic care often involves multiple specialists with separate paper prescriptions. Catalyst organizes them into one clear picture without altering your doctor's clinical decisions.
+                Chronic care often involves multiple specialists with separate paper prescriptions. Catalyst organizes them into one unified family schedule without altering your doctor's clinical decisions.
               </p>
               <div className="pt-2">
                 <a
@@ -484,7 +476,7 @@ export default function Landing({
                 />
               </Link>
               <p className="text-xs text-ui-text-secondary leading-relaxed">
-                A non-clinical prescription navigator and adherence companion. Not a substitute for licensed medical consultation.
+                Catalyst — Intelligent Elderly Care, Medication Scheduling & Family Coordination Platform. Not a substitute for licensed medical consultation.
               </p>
             </div>
 
@@ -573,7 +565,7 @@ export default function Landing({
 
           <div className="mt-12 pt-6 border-t border-ui-border-decorative/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ui-text-secondary">
             <span>
-              © 2026 Catalyst Care. All rights reserved. Always consult your registered medical practitioner.
+              © 2026 Catalyst. All rights reserved. Always consult your registered medical practitioner.
             </span>
             <span className="text-[11px]">
               PMBJP & NPPA Reference Data Aligned
@@ -585,217 +577,478 @@ export default function Landing({
   );
 }
 
-// ---- Sub-Component: Sahayak Voice Player Card (Preserved byte-for-byte in structure & content) ----
-function SahayakPlayerCard({ onLaunchDemo }) {
+// ---- Sub-Component: Catalyst Interactive Senior Voice & Care Circle Card ----
+function CatalystCompanionCard({ onLaunchDemo }) {
+  const [activeTab, setActiveTab] = useState("voice"); // 'voice' | 'circle'
   const [isPlaying, setIsPlaying] = useState(true);
-  const [response, setResponse] = useState("confirmed"); // 'confirmed' | 'snooze' | 'missed'
+  const [doseStatus, setDoseStatus] = useState("pending"); // 'pending' | 'taken' | 'snoozed' | 'missed'
+  const [toast, setToast] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Auto-dismiss transient toast
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 4500);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  // Voice speech simulation using browser speech synthesis if available
+  const handleToggleVoice = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+        setIsPlaying(false);
+        return;
+      }
+      try {
+        window.speechSynthesis.cancel();
+        const text =
+          "Namaste Ramesh ji! Subah ka nashta ho gaya? Amlong 5mg BP wali goli lene ka samay ho gaya hai. Kya aapne le li?";
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "hi-IN";
+        u.rate = 0.92;
+        u.onend = () => {
+          setIsSpeaking(false);
+          setIsPlaying(false);
+        };
+        u.onerror = () => {
+          setIsSpeaking(false);
+        };
+        window.speechSynthesis.speak(u);
+        setIsSpeaking(true);
+        setIsPlaying(true);
+      } catch (e) {
+        setIsPlaying((p) => !p);
+      }
+    } else {
+      setIsPlaying((p) => !p);
+    }
+  };
+
+  const handleAction = (type) => {
+    setDoseStatus(type);
+    if (type === "taken") {
+      setToast({
+        title: "Dose Verified & Logged ✓",
+        msg: "Morning dose Amlong 5mg recorded taken by Ramesh Kumar at 08:14 AM. Care Circle (Meera) notified via Email & WhatsApp.",
+        tone: "success",
+      });
+    } else if (type === "snoozed") {
+      setToast({
+        title: "Reminder Snoozed ⏰",
+        msg: "Rescheduled for 08:30 AM. Proactive reminder queued for patient and care manager.",
+        tone: "warning",
+      });
+    } else if (type === "missed") {
+      setToast({
+        title: "Escalation Noted ⚠️",
+        msg: "Dose skipped. Non-clinical alert dispatched to Meera Kulkarni. Emergency contact 108 on standby.",
+        tone: "danger",
+      });
+    }
+  };
 
   return (
-    <div className="w-full max-w-xl bg-brand-white border-2 border-brand-navy sketchy-box p-6 sm:p-8 shadow-[6px_6px_0px_0px_#1a2234] relative z-10 transform rotate-1 transition-all hover:rotate-0 duration-500">
-      {/* Signature Frosted Masking Tape */}
-      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-36 h-7 bg-brand-cream/90 border-l border-r border-brand-white/70 backdrop-blur-sm transform -rotate-1 opacity-80 shadow-sm flex items-center justify-center">
-        <span className="text-[9px] font-mono font-bold tracking-widest text-brand-navy/70 uppercase">
-          EVIDENCE CASE #04
-        </span>
-      </div>
+    <div
+      role="region"
+      aria-label="Catalyst Live Telemetry and Care Circle Companion"
+      className="w-full max-w-xl bg-ui-surface border border-ui-border-decorative rounded-2xl shadow-[0_16px_40px_-10px_rgba(23,43,77,0.12),0_2px_8px_rgba(23,43,77,0.04)] relative z-10 transition-all duration-300 hover:shadow-[0_20px_50px_-8px_rgba(23,43,77,0.18)] flex flex-col overflow-hidden"
+    >
+      {/* Decorative ambient top glow */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ui-blue via-amber-400 to-ui-blue" />
 
-      {/* Top Header: Telemetry Status + Duration */}
-      <div className="flex justify-between items-center mb-5 pb-3 border-b-2 border-brand-navy/10">
+      {/* Card Header: Live Telemetry Indicator + Segmented Tab Switcher */}
+      <div className="p-4 sm:p-5 pb-3 border-b border-ui-border-decorative/70 bg-ui-canvas/40 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-orange"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600" />
           </span>
-          <span className="text-[11px] font-bold tracking-[0.2em] text-brand-navy uppercase flex items-center gap-1.5">
-            <Radio size={14} className="text-brand-orange" />
-            Live Adherence Telemetry
+          <span className="text-[11px] font-bold tracking-wider text-ui-text uppercase flex items-center gap-1.5 font-mono">
+            <Radio size={13} className="text-emerald-600" aria-hidden="true" />
+            Live Adherence Stream
+          </span>
+          <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-full">
+            Senior Mode Active
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-brand-navy text-brand-white rounded">
-            HINDI · HINGLISH
-          </span>
-          <span className="text-xs font-mono text-brand-gray font-bold">00:34 / 01:30</span>
+
+        {/* Segmented View Switcher */}
+        <div className="inline-flex items-center p-1 bg-ui-canvas border border-ui-border-decorative rounded-xl text-xs font-semibold">
+          <button
+            type="button"
+            onClick={() => setActiveTab("voice")}
+            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              activeTab === "voice"
+                ? "bg-ui-surface text-ui-blue shadow-sm border border-ui-border-decorative/60 font-bold"
+                : "text-ui-text-secondary hover:text-ui-text"
+            }`}
+          >
+            <PhoneCall size={12} className={activeTab === "voice" ? "text-ui-blue" : "text-ui-text-secondary"} />
+            <span>Senior Voice</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("circle")}
+            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              activeTab === "circle"
+                ? "bg-ui-surface text-ui-blue shadow-sm border border-ui-border-decorative/60 font-bold"
+                : "text-ui-text-secondary hover:text-ui-text"
+            }`}
+          >
+            <Users size={12} className={activeTab === "circle" ? "text-ui-blue" : "text-ui-text-secondary"} />
+            <span>Care Circle</span>
+          </button>
         </div>
       </div>
 
-      {/* Patient Dossier Strip */}
-      <div className="flex items-center justify-between bg-brand-cream/60 border border-brand-navy/15 rounded-lg p-3 mb-5">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-brand-peach/40 border border-brand-navy/30 flex items-center justify-center font-serif font-bold text-brand-navy text-sm">
-            RK
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="font-serif font-bold text-sm text-brand-navy leading-none">Ramesh Kumar</h4>
-              <span className="text-[10px] font-sans font-semibold bg-brand-navy/10 text-brand-navy px-1.5 py-0.5 rounded">
-                71 yrs
-              </span>
+      {/* Main Body */}
+      <div className="p-5 sm:p-6 space-y-4">
+        {/* Dynamic Toast Notification for live actions */}
+        {toast && (
+          <div
+            role="status"
+            aria-live="polite"
+            className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs animate-in fade-in slide-in-from-top-2 duration-200 ${
+              toast.tone === "success"
+                ? "bg-emerald-50/90 border-emerald-200 text-emerald-900"
+                : toast.tone === "warning"
+                ? "bg-amber-50/90 border-amber-200 text-amber-900"
+                : "bg-rose-50/90 border-rose-200 text-rose-900"
+            }`}
+          >
+            <CheckCircle2
+              size={16}
+              className={`shrink-0 mt-0.5 ${
+                toast.tone === "success"
+                  ? "text-emerald-600"
+                  : toast.tone === "warning"
+                  ? "text-amber-600"
+                  : "text-rose-600"
+              }`}
+            />
+            <div className="flex-1">
+              <strong className="font-semibold block">{toast.title}</strong>
+              <p className="mt-0.5 leading-relaxed">{toast.msg}</p>
             </div>
-            <p className="text-[11px] text-brand-gray mt-0.5">Hypertension Regimen · Caregiver: Meera (Daughter)</p>
           </div>
-        </div>
-        <div className="text-right">
-          <span className="text-[10px] font-mono font-bold text-brand-orange block uppercase tracking-wider">
-            Morning Dose
-          </span>
-          <span className="text-[11px] font-mono text-brand-navy">08:15 AM · Scheduled</span>
-        </div>
-      </div>
+        )}
 
-      {/* Active Prescription Medicine Box */}
-      <div className="p-3.5 bg-brand-white border-2 border-brand-navy/20 sketchy-box mb-5">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-start gap-2.5">
-            <div className="p-2 bg-brand-orange/15 rounded border border-brand-orange/40 text-brand-navy mt-0.5">
-              <Pill size={16} className="text-brand-orange" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-serif font-bold text-base text-brand-navy">Amlong 5mg</span>
-                <span className="text-[10px] font-mono bg-brand-peach/30 text-brand-navy px-1.5 py-0.5 rounded font-semibold">
-                  1 Tab · Post-Breakfast
+        {activeTab === "voice" ? (
+          <>
+            {/* Senior Dossier Header */}
+            <div className="flex items-center justify-between p-3.5 bg-ui-canvas border border-ui-border-decorative rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-ui-blue text-white flex items-center justify-center font-serif font-bold text-sm shadow-sm">
+                  RK
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-serif font-semibold text-base text-ui-text leading-none">
+                      Ramesh Kumar
+                    </h3>
+                    <span className="text-[10px] font-sans font-semibold bg-ui-surface text-ui-text-secondary border border-ui-border-decorative px-2 py-0.5 rounded-full">
+                      71 yrs
+                    </span>
+                  </div>
+                  <p className="text-xs text-ui-text-secondary mt-1">
+                    Hypertension &amp; Heart Care &bull; Care Manager: <span className="font-medium text-ui-text">Meera (Daughter)</span>
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] font-mono font-bold text-ui-blue block uppercase tracking-wider">
+                  Morning Dose
+                </span>
+                <span className="text-xs font-mono font-semibold text-ui-text">
+                  08:00 AM &bull; {doseStatus === "taken" ? (
+                    <span className="text-emerald-700 font-bold">Taken ✓</span>
+                  ) : doseStatus === "snoozed" ? (
+                    <span className="text-amber-700 font-bold">08:30 AM ⏰</span>
+                  ) : (
+                    "Scheduled"
+                  )}
                 </span>
               </div>
-              <p className="text-xs text-brand-gray mt-0.5">
-                Salt: <span className="font-mono text-brand-navy">Amlodipine Besylate IP 5mg</span>
+            </div>
+
+            {/* Active Medication Card */}
+            <div className="p-4 bg-ui-surface border-l-4 border-l-ui-blue border border-ui-border-decorative rounded-xl shadow-ui-card">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="p-2.5 bg-ui-amber-subtle rounded-xl border border-ui-amber/30 text-ui-amber mt-0.5">
+                    <Pill size={18} className="text-ui-amber" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-serif font-semibold text-base text-ui-text">Amlong 5mg</span>
+                      <span className="text-[10px] font-mono bg-ui-surface-subtle text-ui-text-secondary px-2 py-0.5 rounded font-semibold border border-ui-border-decorative/60">
+                        1 Tab &bull; Post-Breakfast
+                      </span>
+                    </div>
+                    <p className="text-xs text-ui-text-secondary mt-1">
+                      Active Salt: <span className="font-mono text-ui-text font-medium">Amlodipine Besylate IP 5mg</span>
+                    </p>
+                    <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-emerald-800">
+                      <ShieldCheck size={13} className="text-emerald-700 shrink-0" aria-hidden="true" />
+                      <span>Clinical Safety Passed — Zero drug interactions detected</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="inline-block text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                    Jan Aushadhi: ₹6
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Voice Companion Speech Bubble */}
+            <div className="relative p-4 sm:p-5 bg-gradient-to-br from-ui-canvas via-ui-surface to-ui-amber-subtle/30 border border-ui-border-decorative rounded-xl shadow-sm">
+              <div className="flex items-center justify-between mb-2 pb-2 border-b border-ui-border-decorative/60">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={14} className="text-ui-blue" aria-hidden="true" />
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-ui-text font-mono">
+                    Catalyst Senior Companion (Bilingual Voice)
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono font-medium text-ui-text-secondary bg-ui-surface px-2 py-0.5 rounded border border-ui-border-decorative/60">
+                  Hindi &bull; English
+                </span>
+              </div>
+
+              <p className="font-serif text-base sm:text-[17px] text-ui-text leading-relaxed italic">
+                &ldquo;Namaste Ramesh ji! Subah ka nashta ho gaya? BP wali goli{" "}
+                <span className="font-semibold underline decoration-ui-blue decoration-2 not-italic text-ui-blue">
+                  Amlong 5mg
+                </span>{" "}
+                lene ka samay ho gaya hai. Kya aapne le li?&rdquo;
+              </p>
+
+              {/* Animated Audio Waveform with dynamic heights */}
+              <div className="flex items-center justify-between gap-1 h-10 mt-3 px-3 bg-ui-surface/90 rounded-xl border border-ui-border-decorative/80 overflow-hidden shadow-inner">
+                {[40, 65, 80, 45, 90, 70, 30, 85, 100, 60, 40, 95, 75, 50, 85, 60, 35, 70, 90, 55, 30, 80, 65, 45, 85, 50, 30, 60].map(
+                  (h, i) => (
+                    <div
+                      key={i}
+                      className={`w-1 rounded-full transition-all duration-300 ${
+                        i % 4 === 1
+                          ? "bg-ui-blue"
+                          : i % 4 === 3
+                          ? "bg-ui-amber"
+                          : "bg-ui-text-secondary"
+                      }`}
+                      style={{
+                        height: isPlaying ? `${Math.max(18, (h * ((i % 3) + 1)) % 100)}%` : "20%",
+                        opacity: isPlaying ? 0.9 : 0.35,
+                      }}
+                    />
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* Interactive Confirmation Actions */}
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-ui-text-secondary block mb-2">
+                Senior 1-Tap Response:
+              </span>
+              <div className="grid grid-cols-3 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => handleAction("taken")}
+                  className={`min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl border transition-all flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
+                    doseStatus === "taken"
+                      ? "bg-emerald-700 text-white border-emerald-800 shadow-sm"
+                      : "bg-ui-surface text-ui-text border-ui-border-decorative hover:border-ui-blue/60 hover:bg-ui-surface-subtle"
+                  }`}
+                >
+                  <Check size={15} className={doseStatus === "taken" ? "text-white" : "text-emerald-600"} aria-hidden="true" />
+                  <span>Haan, Le Li</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAction("snoozed")}
+                  className={`min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl border transition-all flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
+                    doseStatus === "snoozed"
+                      ? "bg-ui-text text-white border-ui-text shadow-sm"
+                      : "bg-ui-surface text-ui-text border-ui-border-decorative hover:border-ui-blue/60 hover:bg-ui-surface-subtle"
+                  }`}
+                >
+                  <CalendarClock size={15} className={doseStatus === "snoozed" ? "text-white" : "text-amber-600"} aria-hidden="true" />
+                  <span>15 Min Baad</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAction("missed")}
+                  className={`min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl border transition-all flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
+                    doseStatus === "missed"
+                      ? "bg-rose-700 text-white border-rose-800 shadow-sm"
+                      : "bg-ui-surface text-ui-text border-ui-border-decorative hover:border-ui-blue/60 hover:bg-ui-surface-subtle"
+                  }`}
+                >
+                  <AlertTriangle size={15} className={doseStatus === "missed" ? "text-white" : "text-rose-600"} aria-hidden="true" />
+                  <span>Nahi Li</span>
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Care Circle View */}
+            <div className="p-4 bg-ui-canvas border border-ui-border-decorative rounded-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-semibold text-ui-text">
+                  <KeyRound size={16} className="text-ui-blue" aria-hidden="true" />
+                  <span>Passcode Care Circle Engine</span>
+                </div>
+                <span className="text-[10px] font-mono font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  Encrypted &bull; 10m TTL
+                </span>
+              </div>
+              <div className="p-3 bg-ui-surface border border-dashed border-ui-blue/40 rounded-xl flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider text-ui-text-secondary font-semibold block">
+                    Temporary Senior Access Passcode
+                  </span>
+                  <span className="font-mono text-lg font-bold text-ui-blue tracking-widest">
+                    8492 &bull; 3105
+                  </span>
+                </div>
+                <span className="text-xs font-semibold text-ui-blue bg-ui-blue/10 px-2.5 py-1 rounded-lg">
+                  Valid: 08:42 Left
+                </span>
+              </div>
+              <p className="text-xs text-ui-text-secondary leading-relaxed">
+                Ramesh generates a one-time passcode to grant daughter Meera &ldquo;Care Manager&rdquo; rights without exposing master credentials.
               </p>
             </div>
+
+            {/* Connected Circle Members List */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-ui-text-secondary block">
+                Synchronized Family Circle (3 Active):
+              </span>
+              <div className="divide-y divide-ui-border-decorative/60 border border-ui-border-decorative rounded-xl overflow-hidden bg-ui-surface">
+                <div className="p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-ui-blue text-white flex items-center justify-center text-xs font-bold font-serif">
+                      RK
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold text-ui-text block leading-none">Ramesh Kumar</span>
+                      <span className="text-[10px] text-ui-text-secondary">Patient Owner (Full Control)</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-semibold text-ui-blue bg-ui-surface-subtle px-2 py-0.5 rounded border border-ui-border-decorative/60">
+                    Self
+                  </span>
+                </div>
+                <div className="p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs font-bold font-serif">
+                      MK
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold text-ui-text block leading-none">Meera Kulkarni</span>
+                      <span className="text-[10px] text-ui-text-secondary">Daughter &bull; Care Manager</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    Sync Active
+                  </span>
+                </div>
+                <div className="p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold font-serif">
+                      DS
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold text-ui-text block leading-none">Dr. R. K. Sharma</span>
+                      <span className="text-[10px] text-ui-text-secondary">Cardiologist &bull; Clinical Viewer</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-semibold text-ui-text-secondary bg-ui-surface-subtle px-2 py-0.5 rounded border border-ui-border-decorative/60">
+                    Read-Only
+                  </span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Proactive Multi-Channel Sync Strip */}
+        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-ui-border-decorative/60">
+          <div className="p-2.5 rounded-lg bg-ui-canvas border border-ui-border-decorative/60 text-center">
+            <Mail size={14} className="mx-auto text-ui-blue mb-1" aria-hidden="true" />
+            <span className="text-[10px] font-bold text-ui-text block font-mono">EMAIL</span>
+            <span className="text-[9px] text-emerald-700 font-semibold">Dispatched ✓</span>
           </div>
-          <div className="text-right shrink-0">
-            <span className="inline-block text-[10px] font-bold text-brand-navy bg-brand-orange/20 border border-brand-orange/50 px-2 py-0.5 rounded">
-              Jan Aushadhi: ₹6 (Save 82%)
-            </span>
+          <div className="p-2.5 rounded-lg bg-ui-canvas border border-ui-border-decorative/60 text-center">
+            <MessageCircleHeart size={14} className="mx-auto text-emerald-600 mb-1" aria-hidden="true" />
+            <span className="text-[10px] font-bold text-ui-text block font-mono">WHATSAPP</span>
+            <span className="text-[9px] text-emerald-700 font-semibold">Synced ✓</span>
+          </div>
+          <div className="p-2.5 rounded-lg bg-ui-canvas border border-ui-border-decorative/60 text-center">
+            <PhoneCall size={14} className="mx-auto text-amber-600 mb-1" aria-hidden="true" />
+            <span className="text-[10px] font-bold text-ui-text block font-mono">TELEPHONY</span>
+            <span className="text-[9px] text-ui-text-secondary font-semibold">Standby</span>
           </div>
         </div>
       </div>
 
-      {/* Voice Transcript Speech Bubble */}
-      <div className="relative mb-5 p-4 bg-brand-cream/80 border-2 border-brand-navy sketchy-box">
-        <div className="flex items-center gap-2 mb-1.5">
-          <PhoneCall size={13} className="text-brand-orange" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-brand-navy">
-            Sahayak Voice Bot (AI Agent)
-          </span>
-        </div>
-        <p className="font-serif text-base sm:text-lg text-brand-navy leading-snug italic">
-          "Namaste Ramesh ji! Subah ki BP wali goli{" "}
-          <span className="font-semibold underline decoration-brand-orange decoration-2">
-            Amlong 5
-          </span>{" "}
-          le li? Agar le li toh 'Haan' bole."
-        </p>
-
-        {/* Audio Visualizer Waveform */}
-        <div className="flex items-center justify-between gap-1 h-9 mt-3 px-3 bg-brand-white/80 rounded border border-brand-navy/10 overflow-hidden">
-          {[40, 65, 80, 45, 90, 70, 30, 85, 100, 60, 40, 95, 75, 50, 85, 60, 35, 70, 90, 55, 30, 80, 65, 45, 85, 50, 30, 60].map(
-            (h, i) => (
+      {/* Card Footer: Voice Scrubber & Workspace Demo Launcher */}
+      <div className="p-4 sm:p-5 pt-3 border-t border-ui-border-decorative/80 bg-ui-canvas/50 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <button
+            type="button"
+            onClick={handleToggleVoice}
+            className="w-10 h-10 rounded-xl bg-ui-blue hover:bg-ui-blue-hover text-white flex items-center justify-center transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue shrink-0"
+            title={isPlaying ? "Pause voice readout" : "Listen in Hindi"}
+            aria-label={isPlaying ? "Pause voice readout" : "Listen in Hindi"}
+          >
+            {isPlaying ? (
+              <Pause size={16} className="fill-current" aria-hidden="true" />
+            ) : (
+              <Play size={16} className="fill-current translate-x-0.5" aria-hidden="true" />
+            )}
+          </button>
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between text-[11px] font-mono text-ui-text-secondary mb-1">
+              <span className="font-semibold text-ui-text truncate">
+                {isSpeaking ? "Speaking (Web Speech)..." : isPlaying ? "Live audio playback" : "Voice paused"}
+              </span>
+              <span className="shrink-0">00:34 / 01:30</span>
+            </div>
+            <div className="h-1.5 bg-ui-border-decorative rounded-full overflow-hidden">
               <div
-                key={i}
-                className={`w-1 rounded-full transition-all duration-300 ${
-                  i % 4 === 1
-                    ? "bg-brand-orange"
-                    : i % 4 === 3
-                    ? "bg-brand-peach"
-                    : "bg-brand-navy"
-                }`}
-                style={{
-                  height: isPlaying ? `${Math.max(15, (h * ((i % 3) + 1)) % 100)}%` : "20%",
-                  opacity: isPlaying ? 0.9 : 0.35,
-                }}
+                className="h-full bg-ui-blue rounded-full transition-all duration-300"
+                style={{ width: isPlaying ? "42%" : "25%" }}
               />
-            )
-          )}
-        </div>
-      </div>
-
-      {/* Single-Tap Interactive Patient Response Buttons */}
-      <div className="mb-5">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-gray block mb-2">
-          Voice or Tap Confirmation:
-        </span>
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            onClick={() => setResponse("confirmed")}
-            className={`px-3 py-2 text-xs font-bold rounded border-2 transition-all flex items-center justify-center gap-1.5 ${
-              response === "confirmed"
-                ? "bg-brand-navy text-brand-white border-brand-navy shadow-sketch-hover"
-                : "bg-brand-white text-brand-navy border-brand-navy/30 hover:border-brand-navy"
-            }`}
-          >
-            <Check size={14} className={response === "confirmed" ? "text-brand-orange" : "text-brand-gray"} />
-            <span>Haan, Le Li</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setResponse("snooze")}
-            className={`px-3 py-2 text-xs font-bold rounded border-2 transition-all flex items-center justify-center gap-1.5 ${
-              response === "snooze"
-                ? "bg-brand-navy text-brand-white border-brand-navy shadow-sketch-hover"
-                : "bg-brand-white text-brand-navy border-brand-navy/30 hover:border-brand-navy"
-            }`}
-          >
-            <CalendarClock size={14} className={response === "snooze" ? "text-brand-orange" : "text-brand-gray"} />
-            <span>15 Min Baad</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setResponse("missed")}
-            className={`px-3 py-2 text-xs font-bold rounded border-2 transition-all flex items-center justify-center gap-1.5 ${
-              response === "missed"
-                ? "bg-brand-navy text-brand-white border-brand-navy shadow-sketch-hover"
-                : "bg-brand-white text-brand-navy border-brand-navy/30 hover:border-brand-navy"
-            }`}
-          >
-            <AlertTriangle size={14} className={response === "missed" ? "text-brand-orange" : "text-brand-gray"} />
-            <span>Nahi Li</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Audio Controller & CTA Strip */}
-      <div className="flex items-center gap-4 pt-3 border-t-2 border-brand-navy/10">
-        <button
-          onClick={() => setIsPlaying(!isPlaying)}
-          className="w-12 h-12 rounded-full bg-brand-orange border-2 border-brand-navy flex items-center justify-center hover:scale-105 transition-transform shadow-sketch hover:shadow-sketch-hover cursor-pointer shrink-0"
-          title={isPlaying ? "Pause voice preview" : "Play voice preview"}
-        >
-          {isPlaying ? (
-            <Pause size={18} className="text-brand-navy fill-current" />
-          ) : (
-            <Play size={18} className="text-brand-navy fill-current translate-x-0.5" />
-          )}
-        </button>
-
-        <div className="flex-1">
-          <div className="flex justify-between text-[11px] font-mono text-brand-gray mb-1">
-            <span className="font-bold text-brand-navy">{isPlaying ? "Playing voice check-in" : "Paused"}</span>
-            <span>00:34 / 01:30</span>
-          </div>
-          <div className="h-2 bg-brand-navy/10 rounded-full overflow-hidden">
-            <div className="h-full bg-brand-navy w-[38%] rounded-full relative">
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-brand-orange rounded-full border border-brand-navy" />
             </div>
           </div>
         </div>
 
         <button
+          type="button"
           onClick={onLaunchDemo}
-          className="sketchy-btn bg-brand-navy text-brand-white hover:bg-brand-orange hover:text-brand-navy border-2 border-brand-navy px-4 py-2.5 text-xs font-bold uppercase tracking-widest shadow-sketch transition-all shrink-0 flex items-center gap-1.5"
+          className="min-h-[40px] px-4 py-2 bg-ui-text hover:bg-ui-blue text-white rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue shrink-0"
         >
-          <span>Demo</span>
-          <ArrowRight size={13} />
+          <span>Open Demo</span>
+          <ArrowRight size={13} aria-hidden="true" />
         </button>
       </div>
 
-      {/* Caregiver WhatsApp sync footer notice */}
-      <div className="mt-4 pt-3 border-t border-dashed border-brand-navy/15 flex items-center justify-between text-[11px] text-brand-gray">
-        <span className="flex items-center gap-1.5">
-          <MessageCircleHeart size={14} className="text-brand-orange shrink-0" />
-          <span>Caregiver WhatsApp alert: <strong>Papa marked dose taken ✓</strong></span>
+      {/* Live Care Circle Notification Ticker */}
+      <div className="px-4 py-2.5 bg-ui-surface-subtle/80 border-t border-ui-border-decorative/60 flex items-center justify-between text-[11px] text-ui-text-secondary">
+        <span className="flex items-center gap-1.5 truncate">
+          <HeartHandshake size={14} className="text-ui-blue shrink-0" aria-hidden="true" />
+          <span className="truncate">
+            Care Circle: <strong>Meera Kulkarni</strong> received instant adherence confirmation
+          </span>
         </span>
-        <span className="font-mono text-[10px] text-brand-navy/60 font-semibold uppercase">08:16 AM</span>
+        <span className="font-mono text-[10px] text-ui-text-secondary font-medium shrink-0 ml-2">08:14 AM</span>
       </div>
     </div>
   );

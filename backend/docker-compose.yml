@@ -1,20 +1,20 @@
 # Postgres for local scale testing. pgvector image so the future RAG table
 # (design §7.6 explain) needs no image swap.
 #   docker compose up -d
-#   DATABASE_URL=postgresql+psycopg://catalyst:catalyst@localhost:5432/catalyst
+#   DATABASE_URL=postgresql+psycopg://caresetu:caresetu@localhost:5432/caresetu
 services:
   db:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: catalyst
-      POSTGRES_PASSWORD: catalyst
-      POSTGRES_DB: catalyst
+      POSTGRES_USER: caresetu
+      POSTGRES_PASSWORD: caresetu
+      POSTGRES_DB: caresetu
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U catalyst"]
+      test: ["CMD-SHELL", "pg_isready -U caresetu"]
       interval: 5s
       timeout: 3s
       retries: 10

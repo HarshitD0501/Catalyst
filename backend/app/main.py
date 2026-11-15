@@ -107,7 +107,7 @@ async def lifespan(app: FastAPI):
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Catalyst - Elderly Care & Family Coordination Backend", lifespan=lifespan)
+app = FastAPI(title="CareSetu - Elderly Care & Family Coordination Backend", lifespan=lifespan)
 
 
 def _get_pipeline():
@@ -264,7 +264,8 @@ def google_auth(body: GoogleAuthIn, db: Session = Depends(get_db)):
             audience=settings.google_client_id,
         )
     except (ValueError, google_auth_errors.GoogleAuthError) as exc:
-        raise HTTPException(401, "Google credential is invalid or expired.") from exc
+        logger.warning(f"Google auth verification failed: {exc}")
+        raise HTTPException(401, f"Google credential is invalid or expired: {exc}") from exc
     except Exception as exc:  # Google certificate/network errors are temporary service failures.
         logger.warning("Google credential verification is unavailable.")
         raise HTTPException(503, "Google sign-in is temporarily unavailable.") from exc
@@ -789,7 +790,7 @@ def voice_token(
     backend_token = (
         authorization.split(" ", 1)[1] if actor.id == patient.id else make_token(patient.id)
     )
-    room = f"catalyst-{patient.id}-{uuid4().hex[:8]}"  # per-call room, namespaced by patient
+    room = f"caresetu-{patient.id}-{uuid4().hex[:8]}"  # per-call room, namespaced by patient
     jwt = (
         api.AccessToken(settings.livekit_api_key, settings.livekit_api_secret)
         .with_identity(patient.id)
@@ -1443,10 +1444,11 @@ async def trigger_scheduler_tick(
 
 
 @app.get("/")
+@app.get("/health")
 def root():
     return {
         "status": "online",
-        "service": "Catalyst Backend API",
+        "service": "CareSetu Backend API",
         "version": "1.0.0",
         "docs": "/docs",
     }

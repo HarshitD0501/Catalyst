@@ -1,4 +1,4 @@
-"""Outbound doctor-followup telephony for Catalyst (System A side).
+"""Outbound doctor-followup telephony for CareSetu (System A side).
 
 Architecture (per LiveKit outbound-calling docs, docs.livekit.io/telephony/making-calls):
     backend scheduler -> CreateAgentDispatch (new room, agent_name, call metadata)

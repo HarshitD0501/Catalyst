@@ -1,32 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
   <defs>
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f59e0b" />
-      <stop offset="50%" stop-color="#e8a838" />
-      <stop offset="100%" stop-color="#b45309" />
+      <stop offset="0%" stop-color="#FDBA74" />
+      <stop offset="35%" stop-color="#E8A838" />
+      <stop offset="100%" stop-color="#C27803" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
     </linearGradient>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1a2234" />
-      <stop offset="100%" stop-color="#0f172a" />
+      <stop offset="0%" stop-color="#1A2234" />
+      <stop offset="100%" stop-color="#0F172A" />
     </linearGradient>
   </defs>
-  <!-- Background rounded canvas -->
-  <rect width="100" height="100" rx="24" fill="url(#bgGrad)" />
-  
-  <!-- Left Leaf Wing -->
-  <path d="M 20 72 C 14 58 26 46 38 52 C 40 64 30 76 20 72 Z" fill="url(#goldGrad)" opacity="0.95" />
-  
-  <!-- Right Leaf Wing -->
-  <path d="M 80 72 C 86 58 74 46 62 52 C 60 64 70 76 80 72 Z" fill="url(#goldGrad)" opacity="0.95" />
-  
-  <!-- Central Golden Leaf / Teardrop -->
-  <path d="M 50 16 C 66 32 72 58 50 78 C 28 58 34 32 50 16 Z" fill="url(#goldGrad)" />
-  
-  <!-- Heartbeat ECG Pulse Line (Cutout) -->
-  <path d="M 32 50 L 42 50 L 47 38 L 52 64 L 57 44 L 61 52 L 68 50" 
+
+  <!-- Background rounded squircle -->
+  <rect width="100" height="100" rx="22" fill="url(#bgGrad)" />
+
+  <!-- Left Golden Leaf Wing -->
+  <path d="M 16 74 C 10 56 24 44 38 52 C 40 66 28 80 16 74 Z" fill="url(#goldGrad)" opacity="0.95" />
+
+  <!-- Right Golden Leaf Wing -->
+  <path d="M 84 74 C 90 56 76 44 62 52 C 60 66 72 80 84 74 Z" fill="url(#goldGrad)" opacity="0.95" />
+
+  <!-- Central Rounded Triangle Shield Motif -->
+  <path d="M 50 16 C 56 16 66 28 72 44 C 78 58 72 76 50 78 C 28 76 22 58 28 44 C 34 28 44 16 50 16 Z" fill="url(#shieldGrad)" />
+
+  <!-- Inner Dark Heart & Pulse Window -->
+  <path d="M 50 25 C 54 25 61 34 64 46 C 68 56 64 68 50 70 C 36 68 32 56 36 46 C 39 34 46 25 50 25 Z" fill="#1A2234" />
+
+  <!-- Heart & Pulse Vector (Crisp White ECG Wave) -->
+  <path d="M 36 50 L 42 50 L 45 42 L 48 58 L 51 44 L 54 50 L 56 47 C 56 45 58 44 60 45 C 62 46 63 49 61 51 C 59 53 56 56 56 56 C 56 56 53 53 51 51" 
         fill="none" 
-        stroke="#1a2234" 
-        stroke-width="4.5" 
+        stroke="#FFFFFF" 
+        stroke-width="3" 
         stroke-linecap="round" 
         stroke-linejoin="round" />
 </svg>

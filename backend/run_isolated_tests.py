@@ -61,7 +61,7 @@ def main():
         sys.exit(1)
 
     print("=" * 70)
-    print("CATALYST ISOLATED TEST RUNNER (BATCH 8 CI)")
+    print("CARESETU ISOLATED TEST RUNNER (CI)")
     print(f"Found {len(test_files)} test suites in {TESTS_DIR}")
     print("=" * 70)
 

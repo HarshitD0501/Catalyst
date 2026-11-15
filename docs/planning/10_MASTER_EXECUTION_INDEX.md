@@ -1,7 +1,7 @@
 # 10. Master Execution Index & Coding Agent Guide
 
-**Project:** Catalyst — Intelligent Elderly Care & Family Coordination Platform  
-**Challenge:** Elderly Care & Medication Management Platform (PromptWars x Catalyst | Build with AI)  
+**Project:** CareSetu — Intelligent Elderly Care & Family Coordination Platform  
+**Challenge:** Elderly Care & Medication Management Platform (PromptWars x CareSetu | Build with AI)  
 **Execution Mode:** Strict Phase-Gated Development Protocol  
 **Master Timeline:** Final Submission by 15:30 Asia/Kolkata  
 **Status:** Approved Master Blueprint & Operational Guide  

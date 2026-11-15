@@ -18,7 +18,7 @@ import uuid
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 
-app = FastAPI(title="Catalyst — demo UI")
+app = FastAPI(title="CareSetu — demo UI")
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -37,7 +37,7 @@ async def chat_proxy(req: Request):
 
 
 @app.get("/token")
-async def token(room: str = "catalyst-demo"):
+async def token(room: str = "caresetu-demo"):
     """Mint a LiveKit join token for the browser. The voice.py worker auto-joins the
     same room and authenticates to the backend itself (demo creds)."""
     url = os.getenv("LIVEKIT_URL", "")

@@ -4,7 +4,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const metadata = {
-  title: "Catalyst — Elderly Care & Family Coordination Platform",
+  title: "Catalyst — Intelligent Elderly Care & Family Coordination Platform",
   description:
     "Catalyst: Intelligent elderly care platform with shared patient profiles, passcode-based family care circles, medication schedules, and proactive reminders.",
   manifest: "/manifest.json",

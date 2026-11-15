@@ -1,4 +1,4 @@
-# Catalyst — Intelligent Elderly Care & Family Coordination Platform
+# CareSetu — Intelligent Elderly Care & Family Coordination Platform
 
 > Empowering seniors and family care circles with intelligent medication schedule management, real-time adherence tracking, shared patient profiles, and proactive multi-channel reminders.
 
@@ -11,7 +11,7 @@ Geriatric and chronic healthcare present severe coordination challenges:
 2. **Caregiver Blindspots**: Family members and informal caregivers often have no reliable way to verify if morning or evening medications were taken, relying on stressful phone calls or physical pillbox checks.
 3. **Communication Friction**: Complex hospital portals and difficult mobile interfaces alienate seniors who struggle with fine motor control, complex navigation, or small typography.
 
-**Catalyst** bridges this gap by providing an accessible, patient-centered platform where seniors maintain full ownership of their health records while seamlessly inviting trusted family members into a synchronized **Care Circle**.
+**CareSetu** (Care Bridge) bridges this gap by providing an accessible, patient-centered platform where seniors maintain full ownership of their health records while seamlessly inviting trusted family members into a synchronized **Care Circle**.
 
 ---
 
@@ -88,7 +88,7 @@ flowchart TD
 ## 📂 Repository Structure
 
 ```
-Catalyst/
+CareSetu/
 ├── .github/workflows/         # Continuous integration pipelines
 ├── agent/                     # LiveKit real-time voice agent worker
 │   ├── chat.py                # Text companion chatbot service

@@ -19,8 +19,8 @@ class Settings(BaseSettings):
     enable_demo_accounts: bool = False
 
     # SQLite by default (zero setup). Postgres for scale:
-    #   postgresql+psycopg://catalyst:catalyst@localhost:5432/catalyst
-    database_url: str = "sqlite:///./catalyst.db"
+    #   postgresql+psycopg://caresetu:caresetu@localhost:5432/caresetu
+    database_url: str = "sqlite:///./caresetu.db"
 
     # Extraction VLM chain (OpenAI-compatible vision /chat/completions), tried in
     # order; first success wins, then Gemini. The canned result is development-only
@@ -69,14 +69,14 @@ class Settings(BaseSettings):
     # Blank token or phone_number_id => operates in safe development/simulation mode.
     whatsapp_api_token: str = ""
     whatsapp_phone_number_id: str = ""
-    whatsapp_verify_token: str = "catalyst_whatsapp_verify_token"
+    whatsapp_verify_token: str = "caresetu_whatsapp_verify_token"
     whatsapp_app_secret: str = ""
 
     # Twilio Voice & Telephony
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_phone_number: str = ""
-    twilio_sip_domain: str = ""  # e.g., catalyst.pstn.twilio.com
+    twilio_sip_domain: str = ""  # e.g., caresetu.pstn.twilio.com
     twilio_sip_username: str = ""
     twilio_sip_password: str = ""
     twilio_enable_amd: bool = True  # Answering Machine Detection (AMD)
@@ -85,7 +85,7 @@ class Settings(BaseSettings):
     # Agent name under which the voice worker (agent/voice.py) registers with
     # LiveKit Cloud. Outbound dispatches target THIS name so the right worker
     # gets the job. Must match agent_name in WorkerOptions (voice.py).
-    livekit_agent_name: str = "catalyst-voice"
+    livekit_agent_name: str = "caresetu-voice"
 
     # Transactional Email & Notifications (Resend API & SMTP)
     resend_api_key: str = ""
@@ -93,7 +93,7 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_pass: str = ""
-    smtp_from: str = "Catalyst Health <noreply@catalysthealth.app>"
+    smtp_from: str = "CareSetu Health <noreply@caresetu.app>"
     smtp_use_tls: bool = True
 
     # Outbound Safety, Kill Switch & Allowlist (Batch 4: ERR-002, ERR-019)

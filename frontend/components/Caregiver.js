@@ -783,7 +783,7 @@ export default function Caregiver({ caregiver, onLogout, onGoHome }) {
     <div className="workspace-v2 caregiver-workspace">
       <aside className="cg-sidebar" aria-label="Caregiver workspace">
         <div className="cg-sidebar-brand">
-          <Link href="/" aria-label="Catalyst home"><img src="/catalyst-logo.png" alt="" /></Link>
+          <Link href="/" aria-label="Catalyst home"><img src="/catalyst-logo.png" alt="Catalyst" /></Link>
           <span>Caregiver</span>
         </div>
         {onGoHome && (
@@ -805,7 +805,7 @@ export default function Caregiver({ caregiver, onLogout, onGoHome }) {
       </aside>
 
       <div className="cg-mobile-bar">
-        <Link href="/" aria-label="Catalyst home"><img src="/catalyst-logo.png" alt="" /></Link>
+        <Link href="/" aria-label="Catalyst home"><img src="/catalyst-logo.png" alt="Catalyst" /></Link>
         <span>{selectedPatient?.name || "Family overview"}</span>
         <button
           ref={menuButtonRef}

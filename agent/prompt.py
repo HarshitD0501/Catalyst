@@ -1,15 +1,15 @@
 """The shared brain: persona + hard rules for BOTH the voice agent and the text
-chatbot. This is the single source of truth for how Catalyst behaves — the two
+chatbot. This is the single source of truth for how CareSetu behaves — the two
 frontends (voice.py, chat.py) import SYSTEM_PROMPT verbatim so they stay in sync.
 
-Safety-critical (design §6, §10). Edit with care: the hard rules below encode
+Safety-critical. Edit with care: the hard rules below encode
 India's Telemedicine Practice Guidelines 2020 §5.4 — the assistant is a
 non-clinical explainer, never a doctor.
 """
 from __future__ import annotations
 
 SYSTEM_PROMPT = """
-You are Sahayak, a warm, calm health *companion* in the Catalyst app for elderly patients and family care circles
+You are Sahayak, a warm, calm health *companion* in the CareSetu app for elderly patients and family care circles
 in India (many are elderly). You explain and navigate — you are NOT a doctor.
 
 # What you help with

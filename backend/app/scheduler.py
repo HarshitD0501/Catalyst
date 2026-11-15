@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 from .config import settings
 from .models import Appointment, Patient, ReminderLog, ReminderTask, Report
 
-logger = logging.getLogger("catalyst.scheduler")
+logger = logging.getLogger("caresetu.scheduler")
 
 DEFAULT_QUIET_START_HOUR = 9   # 09:00 AM
 DEFAULT_QUIET_END_HOUR = 20    # 08:00 PM (20:00)
@@ -588,8 +588,8 @@ async def process_reminder_task(
                 db.commit()
                 return {"status": "failed", "reason": "no_email", "task_id": task.id}
 
-            subj = "Catalyst Health Notification"
-            html = "<p>Notification from Catalyst Health</p>"
+            subj = "CareSetu Health Notification"
+            html = "<p>Notification from CareSetu Health</p>"
 
             if task.kind == "dose" and task.dose_adherence_id:
                 adh = db.get(DoseAdherence, task.dose_adherence_id)

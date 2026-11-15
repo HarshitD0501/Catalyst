@@ -8,17 +8,20 @@ const TOKEN_KEY = "catalyst_token";
 
 export function getToken() {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(TOKEN_KEY) || window.localStorage.getItem("aushadh_token");
+  return window.localStorage.getItem(TOKEN_KEY) || window.localStorage.getItem("catalyst_token") || window.localStorage.getItem("aushadh_token");
 }
 export function setToken(t) {
   window.localStorage.setItem(TOKEN_KEY, t);
+  window.localStorage.setItem("catalyst_token", t);
 }
 export function clearToken() {
   if (typeof window !== "undefined") {
     const pid = window.localStorage.getItem(PATIENT_KEY);
     window.localStorage.removeItem(TOKEN_KEY);
+    window.localStorage.removeItem("catalyst_token");
     window.localStorage.removeItem("aushadh_token");
     window.localStorage.removeItem(PATIENT_KEY); // stale patient header = wrong dashboard
+    window.localStorage.removeItem("catalyst_patient_id");
     clearResourceCache();
     try {
       import("./indexedDb")
@@ -37,15 +40,21 @@ const PATIENT_KEY = "catalyst_patient_id";
 // the backend forces them to self regardless of the header.
 export function getActivePatientId() {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(PATIENT_KEY) || null;
+  return window.localStorage.getItem(PATIENT_KEY) || window.localStorage.getItem("catalyst_patient_id") || null;
 }
 export function setActivePatientId(id) {
   if (typeof window === "undefined") return;
   const prev = window.localStorage.getItem(PATIENT_KEY);
-  if (id) window.localStorage.setItem(PATIENT_KEY, id);
-  else window.localStorage.removeItem(PATIENT_KEY);
+  if (id) {
+    window.localStorage.setItem(PATIENT_KEY, id);
+    window.localStorage.setItem("catalyst_patient_id", id);
+  } else {
+    window.localStorage.removeItem(PATIENT_KEY);
+    window.localStorage.removeItem("catalyst_patient_id");
+  }
   if (prev !== id) {
     clearResourceCache();
+    window.dispatchEvent(new CustomEvent("catalyst:patient_switched", { detail: { patientId: id } }));
     window.dispatchEvent(new CustomEvent("catalyst:patient_switched", { detail: { patientId: id } }));
   }
 }
@@ -121,6 +130,7 @@ export async function api(path, opts = {}) {
       clearToken();
       clearResourceCache();
       if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("catalyst:logout"));
         window.dispatchEvent(new Event("catalyst:logout"));
       }
     }

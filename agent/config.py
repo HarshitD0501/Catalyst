@@ -1,4 +1,4 @@
-"""Env-driven config for the Catalyst voice+chat agent (design §6).
+"""Env-driven config for the CareSetu voice+chat agent.
 
 One key note: the LiveKit Google plugin looks up GOOGLE_API_KEY, while the
 backend uses GEMINI_API_KEY. We accept either so a single key works across both
@@ -25,12 +25,12 @@ if GOOGLE_API_KEY:
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")  # ultra-fast, low-latency, active Google model
 
 # --- Backend (System A) — the single source of truth. Tools call it over HTTP. ---
-BACKEND_URL = os.getenv("CATALYST_BACKEND_URL", "http://localhost:8000")
+BACKEND_URL = os.getenv("CARESETU_BACKEND_URL", os.getenv("CATALYST_BACKEND_URL", "http://localhost:8000"))
 
 # --- Outbound telephony (matches backend settings.livekit_agent_name) ---
 # Worker registers under this name; the backend's CreateAgentDispatch targets it
 # for outbound doctor-reminder calls. Must equal backend livekit_agent_name.
-AGENT_NAME = os.getenv("CATALYST_AGENT_NAME", "catalyst-voice")
+AGENT_NAME = os.getenv("CARESETU_AGENT_NAME", os.getenv("CATALYST_AGENT_NAME", "caresetu-voice"))
 LIVEKIT_SIP_TRUNK_ID = os.getenv("LIVEKIT_SIP_TRUNK_ID", "")
 TWILIO_SIP_DOMAIN = os.getenv("TWILIO_SIP_DOMAIN", "")
 TWILIO_SIP_USERNAME = os.getenv("TWILIO_SIP_USERNAME", "")
@@ -51,8 +51,8 @@ MURF_MODEL = os.getenv("MURF_MODEL", "")
 
 # --- Standalone/demo: if the frontend didn't pass a patient token, log in with
 # these demo creds so the agent runs without a UI (e.g. aarav@demo.in / pass1234). ---
-DEMO_IDENTIFIER = os.getenv("CATALYST_DEMO_IDENTIFIER", "")
-DEMO_PASSWORD = os.getenv("CATALYST_DEMO_PASSWORD", "")
+DEMO_IDENTIFIER = os.getenv("CARESETU_DEMO_IDENTIFIER", os.getenv("CATALYST_DEMO_IDENTIFIER", ""))
+DEMO_PASSWORD = os.getenv("CARESETU_DEMO_PASSWORD", os.getenv("CATALYST_DEMO_PASSWORD", ""))
 
 # Preferred reply language when the patient's profile doesn't specify: hi | en
-DEFAULT_LANG = os.getenv("CATALYST_DEFAULT_LANG", "hi")
+DEFAULT_LANG = os.getenv("CARESETU_DEFAULT_LANG", os.getenv("CATALYST_DEFAULT_LANG", "hi"))

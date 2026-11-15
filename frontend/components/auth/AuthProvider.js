@@ -186,9 +186,9 @@ export function AuthProvider({ children }) {
     };
 
     if (typeof window !== "undefined") {
-      window.addEventListener("aushadh:logout", handleLogoutEvent);
+      window.addEventListener("catalyst:logout", handleLogoutEvent);
       return () => {
-        window.removeEventListener("aushadh:logout", handleLogoutEvent);
+        window.removeEventListener("catalyst:logout", handleLogoutEvent);
       };
     }
   }, [openLogin]);

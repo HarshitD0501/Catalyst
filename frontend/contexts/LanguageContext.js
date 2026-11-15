@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const translations = {
   en: {
     appName: "Catalyst",
-    appTagline: "Elderly Care & Family Coordination",
+    appTagline: "Elderly Care & Family Coordination Platform",
     disclaimerTitle: "Medical Notice",
     disclaimerText: "Informational only — confirm with doctor or pharmacist before substituting.",
     // Navigation
@@ -61,8 +61,8 @@ const translations = {
     noMedsToday: "You have no scheduled medication doses for today."
   },
   hi: {
-    appName: "कैटालिस्ट (Catalyst)",
-    appTagline: "वृद्धजन स्वास्थ्य व परिवार देखभाल",
+    appName: "केयरसेतु (Catalyst)",
+    appTagline: "वरिष्ठ नागरिक देखभाल व परिवार सेतु",
     disclaimerTitle: "चिकित्सा सूचना",
     disclaimerText: "केवल सूचनात्मक — दवा बदलने से पहले डॉक्टर या फार्मासििस्ट से पुष्टि करें।",
     // Navigation
@@ -134,7 +134,7 @@ export function LanguageProvider({ children }) {
   // Fix F40: Synchronize document.documentElement.lang on initial restore from localStorage
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("catalyst_lang");
+      const saved = localStorage.getItem("catalyst_lang") || localStorage.getItem("catalyst_lang");
       if (saved === "hi" || saved === "en") {
         setLanguageState(saved);
         if (typeof document !== "undefined") {
@@ -144,7 +144,7 @@ export function LanguageProvider({ children }) {
         document.documentElement.lang = "en";
       }
 
-      const savedSenior = localStorage.getItem("catalyst_senior_mode");
+      const savedSenior = localStorage.getItem("catalyst_senior_mode") || localStorage.getItem("catalyst_senior_mode");
       if (savedSenior === "true") {
         setSeniorModeState(true);
         if (typeof document !== "undefined") {
@@ -158,6 +158,7 @@ export function LanguageProvider({ children }) {
     setLanguageState(lang);
     try {
       localStorage.setItem("catalyst_lang", lang);
+      localStorage.setItem("catalyst_lang", lang);
     } catch {}
     if (typeof document !== "undefined") {
       document.documentElement.lang = lang;
@@ -168,6 +169,7 @@ export function LanguageProvider({ children }) {
     setSeniorModeState((prev) => {
       const next = !prev;
       try {
+        localStorage.setItem("catalyst_senior_mode", String(next));
         localStorage.setItem("catalyst_senior_mode", String(next));
       } catch {}
       if (typeof document !== "undefined") {

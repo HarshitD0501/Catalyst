@@ -39,7 +39,7 @@ import followup_prompt
 import prompt
 from backend_client import BackendClient, login_demo, safe
 
-logger = logging.getLogger("catalyst.agent")
+logger = logging.getLogger("caresetu.agent")
 
 # Windows cold-start: loading the certifi CA bundle into an SSL context is a
 # one-shot ~0.2-5s blocking read the SDK does on the event loop at startup.
@@ -238,6 +238,7 @@ class DoctorFollowupAssistant(Agent):
         return json.dumps(data, ensure_ascii=False)
 
 
+CareSetuAssistant = SahayakAssistant
 CatalystAssistant = SahayakAssistant  # backward-compatibility alias
 
 _HI_DAYS = ("आज", "कल", "परसों")
@@ -532,7 +533,7 @@ async def start_followup_session(session, client, room, room_options, call_meta:
     doc_name = call_meta.get("doctor_name", "डॉक्टर")
     when_txt = _lead_time_text(call_meta.get("follow_up_date", ""))
     await session.say(
-        f"नमस्ते {patient_name} जी! मैं Catalyst से सहायक बोल रहा हूँ। "
+        f"नमस्ते {patient_name} जी! मैं CareSetu से सहायक बोल रहा हूँ। "
         f"डॉक्टर {doc_name} के साथ आपका चेकअप {when_txt} तय है। "
         "क्या आप जा पाएंगे?",
         allow_interruptions=True,
@@ -550,13 +551,13 @@ async def start_browser_session(session, client, room, room_options, profile: di
     address = f" {first_name}" if first_name else ""
     if profile["lang"].lower().startswith("hi"):
         greeting = (
-            f"नमस्ते{address}! मैं सहायक हूँ, कैटालिस्ट का वॉइस असिस्टेंट। "
+            f"नमस्ते{address}! मैं सहायक हूँ, केयरसेतु का वॉइस असिस्टेंट। "
             "मैं आपकी दवाओं और प्रिस्क्रिप्शन की जानकारी समझने में मदद कर सकता हूँ। "
             "आज मैं आपकी क्या मदद करूँ?"
         )
     else:
         greeting = (
-            f"Hello{address}! I’m Sahayak, Catalyst’s voice assistant. "
+            f"Hello{address}! I’m Sahayak, CareSetu’s voice assistant. "
             "I can help explain your medicines and prescription. How can I help today?"
         )
     await session.say(greeting, allow_interruptions=True)

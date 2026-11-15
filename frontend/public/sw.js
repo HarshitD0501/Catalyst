@@ -5,7 +5,9 @@ const STATIC_ASSETS = [
   '/app',
   '/manifest.json',
   '/favicon.svg',
-  '/catalyst-logo.png'
+  '/catalyst-logo.png',
+  '/catalyst-logo.png',
+  '/logo.png'
 ];
 
 self.addEventListener('install', (event) => {

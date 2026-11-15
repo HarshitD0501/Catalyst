@@ -139,6 +139,12 @@ if (typeof window !== "undefined") {
   window.addEventListener("catalyst:logout", () => {
     clearResourceCache();
   });
+  window.addEventListener("catalyst:logout", () => {
+    clearResourceCache();
+  });
+  window.addEventListener("catalyst:patient_switched", () => {
+    clearResourceCache();
+  });
   window.addEventListener("catalyst:patient_switched", () => {
     clearResourceCache();
   });

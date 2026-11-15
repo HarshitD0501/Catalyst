@@ -1,11 +1,11 @@
-# Catalyst: Intelligent Elderly Care & Family Coordination Platform
+# CareSetu: Intelligent Elderly Care & Family Coordination Platform
 
 Status: Active engineering roadmap and implementation plan.
 Target final deployment: 15:30 Asia/Kolkata.
 
 ## Product Vision & Problem Scope
 
-Catalyst addresses the multi-faceted challenges of geriatric and chronic healthcare: medication non-adherence, caregiver coordination friction, and cognitive load on elderly patients.
+CareSetu addresses the multi-faceted challenges of geriatric and chronic healthcare: medication non-adherence, caregiver coordination friction, and cognitive load on elderly patients.
 
 The platform provides shared patient profiles, secure passcode-based access for family members and caregivers, comprehensive medication schedule management, real-time dose adherence tracking, clinical appointment scheduling, and proactive multi-channel reminders (mandatory transactional email alerts backed by durable retry outbox, supplemented by voice and messaging channels). Evaluation focus: code quality, zero-trust security, operational efficiency, automated test coverage, WCAG 2.2 accessibility, and Google services integration (Gemini VLM & Live Audio).
 

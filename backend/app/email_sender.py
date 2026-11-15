@@ -25,7 +25,7 @@ from uuid import uuid4
 
 from .config import settings
 
-logger = logging.getLogger("catalyst.email")
+logger = logging.getLogger("caresetu.email")
 
 # In-memory history for testing and audit inspection
 _sent_emails_history: list[dict[str, Any]] = []
@@ -74,7 +74,7 @@ def _base_email_template(title: str, content_html: str, action_button: Optional[
                             <table role="presentation" width="100%">
                                 <tr>
                                     <td>
-                                        <span style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px;">Catalyst</span>
+                                        <span style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px;">CareSetu</span>
                                         <span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; margin-left: 8px; font-weight: 500;">Health Assistant</span>
                                     </td>
                                 </tr>
@@ -94,7 +94,7 @@ def _base_email_template(title: str, content_html: str, action_button: Optional[
                     <!-- Footer -->
                     <tr>
                         <td style="padding: 20px 32px; background-color: #F1F5F9; border-top: 1px solid #E2E8F0; font-size: 12px; color: #64748B; text-align: center; line-height: 1.5;">
-                            <p style="margin: 0 0 4px;">Sent by <strong>Catalyst Elderly Care & Medication Platform</strong>.</p>
+                            <p style="margin: 0 0 4px;">Sent by <strong>CareSetu Elderly Care & Medication Platform</strong>.</p>
                             <p style="margin: 0;">Designed to support elder health independence and family peace of mind.</p>
                         </td>
                     </tr>
@@ -125,12 +125,12 @@ def build_upcoming_dose_email(
         {f'<div style="font-size: 13px; color: #475569; margin-top: 8px;">Instructions: <em>{notes}</em></div>' if notes else ''}
     </div>
     <p>Taking your medication on time maintains effective therapeutic levels and prevents adverse health complications.</p>
-    <p>Please remember to mark this dose in your Catalyst dashboard once taken.</p>
+    <p>Please remember to mark this dose in your CareSetu dashboard once taken.</p>
     """
     html = _base_email_template(
         title=f"Upcoming Dose: {medicine_brand}",
         content_html=content,
-        action_button={"label": "View Today's Medication Schedule", "url": "https://catalysthealth.app/app"}
+        action_button={"label": "View Today's Medication Schedule", "url": "https://caresetu.app/app"}
     )
     return subject, html
 
@@ -171,7 +171,7 @@ def build_missed_dose_email(
     html = _base_email_template(
         title=f"Missed Dose Alert: {medicine_brand}",
         content_html=content,
-        action_button={"label": "Open Catalyst Dashboard", "url": "https://catalysthealth.app/app"}
+        action_button={"label": "Open CareSetu Dashboard", "url": "https://caresetu.app/app"}
     )
     return subject, html
 
@@ -197,14 +197,14 @@ def build_appointment_email(
     <p><strong>Helpful Preparation Checklist:</strong></p>
     <ul style="padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.6;">
         <li>Carry your previous prescription slips and latest lab reports.</li>
-        <li>Review your active medication list in the Catalyst app.</li>
+        <li>Review your active medication list in the CareSetu app.</li>
         <li>Arrive 15 minutes before your scheduled appointment time.</li>
     </ul>
     """
     html = _base_email_template(
         title=f"Appointment Reminder: Dr. {doctor_name}",
         content_html=content,
-        action_button={"label": "View Appointment Details", "url": "https://catalysthealth.app/app"}
+        action_button={"label": "View Appointment Details", "url": "https://caresetu.app/app"}
     )
     return subject, html
 
@@ -216,10 +216,10 @@ def build_care_circle_invitation_email(
     expires_in_minutes: int = 10,
 ) -> tuple[str, str]:
     """Generate subject and HTML content for Care Circle invitation passcode."""
-    subject = f"{patient_name} invited you to join their Catalyst Care Circle"
+    subject = f"{patient_name} invited you to join their CareSetu Care Circle"
     content = f"""
     <p>Hello,</p>
-    <p><strong>{patient_name}</strong> has invited you to join their private <strong>Catalyst Care Circle</strong> as a <strong>{role.replace('_', ' ').title()}</strong>.</p>
+    <p><strong>{patient_name}</strong> has invited you to join their private <strong>CareSetu Care Circle</strong> as a <strong>{role.replace('_', ' ').title()}</strong>.</p>
     <p>To accept this invitation and access their care dashboard, use the one-time 8-digit verification code below:</p>
     <div style="background-color: #F5F3FF; border: 2px dashed #7C3AED; padding: 24px; border-radius: 8px; text-align: center; margin: 24px 0;">
         <div style="font-size: 12px; text-transform: uppercase; color: #6D28D9; font-weight: 700; letter-spacing: 1px;">Single-Use Security Passcode</div>
@@ -231,7 +231,7 @@ def build_care_circle_invitation_email(
     html = _base_email_template(
         title="Family Care Circle Invitation",
         content_html=content,
-        action_button={"label": "Redeem Passcode at Catalyst", "url": "https://catalysthealth.app/caregiver"}
+        action_button={"label": "Redeem Passcode at CareSetu", "url": "https://caresetu.app/caregiver"}
     )
     return subject, html
 
@@ -296,7 +296,7 @@ def send_email(
             msg["From"] = settings.smtp_from
             msg["To"] = to_email
             msg["Date"] = email.utils.formatdate(localtime=True)
-            msg["Message-ID"] = email.utils.make_msgid(domain="catalysthealth.app")
+            msg["Message-ID"] = email.utils.make_msgid(domain="caresetu.app")
 
             part1 = MIMEText(text_body or subject, "plain")
             part2 = MIMEText(html_body, "html")

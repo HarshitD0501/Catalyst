@@ -139,8 +139,8 @@ export default function Navbar({
           <img
             src="/catalyst-logo.png"
             alt="Catalyst"
-            width="130"
-            height="36"
+            width="140"
+            height="38"
             className="h-9 sm:h-10 w-auto object-contain max-h-10"
           />
         </Link>

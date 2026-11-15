@@ -1,7 +1,7 @@
-# Catalyst — Final Engineering Submission & Architecture Verification Report
+# CareSetu — Final Engineering Submission & Architecture Verification Report
 
-**Platform:** Catalyst (Comprehensive Elderly Care, Family Coordination & Jan Aushadhi Medicine Discovery)  
-**Hackathon Target:** PromptWars x Catalyst | Build with AI Hackathon by Google for Developers / H2S  
+**Platform:** CareSetu (Comprehensive Elderly Care, Family Coordination & Jan Aushadhi Medicine Discovery)  
+**Hackathon Target:** PromptWars x CareSetu | Build with AI Hackathon by Google for Developers / H2S  
 **Date:** November 15, 2026  
 **Engineering Status:** Production Ready — All 5 Phases Fully Implemented & Verified
 
@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-Catalyst is an end-to-end clinical companion designed specifically for India's 140M+ elderly population and their distributed family care circles. Built with modern AI architectures and clinical safety boundaries, Catalyst simplifies handwritten doctor prescriptions, verifies Jan Aushadhi (PMBJP) generic substitutes to eliminate out-of-pocket healthcare inflation, and coordinates family care circles with automated WhatsApp reminders, LiveKit voice follow-up check-ins, and durable transactional emails.
+CareSetu is an end-to-end clinical companion designed specifically for India's 140M+ elderly population and their distributed family care circles. Built with modern AI architectures and clinical safety boundaries, CareSetu simplifies handwritten doctor prescriptions, verifies Jan Aushadhi (PMBJP) generic substitutes to eliminate out-of-pocket healthcare inflation, and coordinates family care circles with automated WhatsApp reminders, LiveKit voice follow-up check-ins, and durable transactional emails.
 
 Every feature conforms to strict software engineering standards, including Conventional Commits, isolated test environments, OWASP API security boundaries, and WCAG 2.2 AA accessibility.
 
@@ -131,4 +131,4 @@ The codebase follows a clean, senior-engineering milestone progression:
 
 ## 5. Conclusion
 
-Catalyst meets all technical, functional, and safety requirements specified in the PromptWars x Catalyst challenge. The system is verified, documented, and fully ready for final submission and evaluation.
+CareSetu meets all technical, functional, and safety requirements specified in the PromptWars x CareSetu challenge. The system is verified, documented, and fully ready for final submission and evaluation.

@@ -72,7 +72,7 @@ def test_followup_prompt_emergency_and_safety_rules():
 
 if __name__ == "__main__":
     print("\n=======================================================")
-    print("RUNNING CATALYST AGENT FOLLOW-UP PROMPT & RESCHEDULE TEST")
+    print("RUNNING CARESETU AGENT FOLLOW-UP PROMPT & RESCHEDULE TEST")
     print("=======================================================\n")
     test_followup_prompt_hindi_opening()
     test_followup_prompt_dynamic_language_switching()

@@ -102,6 +102,7 @@ class Client {
       if (typeof window !== "undefined") {
         const token =
           window.localStorage.getItem("catalyst_token") ||
+          window.localStorage.getItem("catalyst_token") ||
           window.localStorage.getItem("aushadh_token");
         if (token) headers["Authorization"] = `Bearer ${token}`;
       }
@@ -152,6 +153,7 @@ class Client {
     const headers = {};
     if (typeof window !== "undefined") {
       const token =
+        window.localStorage.getItem("catalyst_token") ||
         window.localStorage.getItem("catalyst_token") ||
         window.localStorage.getItem("aushadh_token");
       if (token) headers["Authorization"] = `Bearer ${token}`;

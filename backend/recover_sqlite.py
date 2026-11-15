@@ -1,7 +1,7 @@
 """Rebuild out-of-range SQLite index roots in a separate, validated copy.
 
 Stop all database users first. Never edits or replaces the input database.
-Usage: python recover_sqlite.py catalyst.db recovered.db
+Usage: python recover_sqlite.py caresetu.db recovered.db
 """
 from __future__ import annotations
 

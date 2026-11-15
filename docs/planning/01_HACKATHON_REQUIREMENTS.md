@@ -1,8 +1,8 @@
 # 01. Hackathon Requirements & Verification Matrix
 
-**Project:** Catalyst — Intelligent Elderly Care & Family Coordination Platform  
+**Project:** CareSetu — Intelligent Elderly Care & Family Coordination Platform  
 **Challenge:** Elderly Care & Medication Management Platform  
-**Event:** PromptWars x Catalyst | Build with AI (Google for Developers, H2S, MnM Works)  
+**Event:** PromptWars x CareSetu | Build with AI (Google for Developers, H2S, MnM Works)  
 **Target Submission Window:** 15:30 Asia/Kolkata (November 15, 2026)  
 **Status:** Baseline Verified | Planning Stage (Phase-Gated)  
 
