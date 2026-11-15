@@ -54,6 +54,8 @@ import {
   CheckCircle,
   Plus,
   Mail,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 
 // Shared GET-with-loading/error helper with deduplication & scoped caching. Re-fetches when `deps` change.
@@ -321,22 +323,23 @@ function SlotCard({
                 )}
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons with 44px+ touch targets and accessible focus rings */}
               {m.adherence_id && (
                 <div className="pt-2 border-t border-ui-border-decorative/60 flex flex-col gap-2">
-                  <div className="grid grid-cols-2 gap-1.5">
+                  <div className="grid grid-cols-2 gap-2">
                     {m.adherence_status !== "taken" ? (
                       <button
                         type="button"
-                        className="inline-flex items-center justify-center gap-1 py-1 px-2 text-[11px] font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-colors"
-                        onClick={() => onSimulateReply(m.adherence_id, "taken")}
-                        title="Simulate patient tapping 'Yes, All Taken' on WhatsApp"
+                        className="inline-flex items-center justify-center gap-1.5 py-2 px-3 min-h-[44px] text-xs font-semibold text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 shadow-xs"
+                        onClick={() => onSimulateReply(m.adherence_id, "taken", m.brand)}
+                        title={`Record ${m.brand} as taken`}
+                        aria-label={`Mark ${m.brand} as taken`}
                       >
-                        <Check size={12} />
+                        <Check size={14} className="shrink-0" />
                         <span>Taken</span>
                       </button>
                     ) : (
-                      <span className="inline-flex items-center justify-center gap-1 py-1 px-2 text-[11px] font-semibold text-emerald-700 bg-emerald-50/60 rounded-md">
+                      <span className="inline-flex items-center justify-center gap-1 py-2 px-3 min-h-[44px] text-xs font-bold text-emerald-800 bg-emerald-50/80 border border-emerald-200 rounded-lg">
                         ✓ Recorded
                       </span>
                     )}
@@ -344,15 +347,16 @@ function SlotCard({
                     {m.adherence_status !== "missed" ? (
                       <button
                         type="button"
-                        className="inline-flex items-center justify-center gap-1 py-1 px-2 text-[11px] font-semibold text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-md transition-colors"
-                        onClick={() => onSimulateReply(m.adherence_id, "missed")}
-                        title="Simulate patient tapping 'Missed / Forgot' on WhatsApp"
+                        className="inline-flex items-center justify-center gap-1.5 py-2 px-3 min-h-[44px] text-xs font-semibold text-rose-900 bg-rose-50 hover:bg-rose-100 border border-rose-300 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 shadow-xs"
+                        onClick={() => onSimulateReply(m.adherence_id, "missed", m.brand)}
+                        title={`Record ${m.brand} as missed`}
+                        aria-label={`Mark ${m.brand} as missed`}
                       >
-                        <X size={12} />
+                        <X size={14} className="shrink-0" />
                         <span>Missed</span>
                       </button>
                     ) : (
-                      <span className="inline-flex items-center justify-center gap-1 py-1 px-2 text-[11px] font-semibold text-rose-700 bg-rose-50/60 rounded-md">
+                      <span className="inline-flex items-center justify-center gap-1 py-2 px-3 min-h-[44px] text-xs font-bold text-rose-800 bg-rose-50/80 border border-rose-200 rounded-lg">
                         ✕ Missed
                       </span>
                     )}
@@ -421,8 +425,18 @@ export function Summary({ pollVersion = 0, patient }) {
   const [slotTimes, setSlotTimes] = useState({ morning: "08:00", afternoon: "13:00", night: "20:00" });
   const [savingTimes, setSavingTimes] = useState(false);
   const [adhVersion, setAdhVersion] = useState(0);
+  const [adherenceAnnouncement, setAdherenceAnnouncement] = useState("");
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const { loading, isRefreshing, error, data, lastUpdated } = useData("/summary", [adhVersion, pollVersion]);
   const scope = useReveal([loading, data]);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (data?.patient) {
@@ -469,16 +483,72 @@ export function Summary({ pollVersion = 0, patient }) {
     }
   };
 
-  const handleSimulateReply = async (adherence_id, action) => {
+  const handleSimulateReply = async (adherence_id, action, brand) => {
     try {
       await api(`/adherence/${adherence_id}/check-in`, {
         method: "POST",
-        json: { status: action === "take" ? "taken" : "missed" },
+        json: { status: action === "take" || action === "taken" ? "taken" : "missed" },
       });
       setAdhVersion((v) => v + 1);
+      const isTaken = action === "take" || action === "taken";
+      const msg = isTaken
+        ? `Dose of ${brand || "medicine"} recorded as taken.`
+        : `Dose of ${brand || "medicine"} recorded as missed.`;
+      setAdherenceAnnouncement(msg);
     } catch (e) {
       alert(e.message || "Failed to record adherence");
     }
+  };
+
+  const handleSpeakDoses = (s) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      alert("Audio speech synthesis is not supported on this browser.");
+      return;
+    }
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const lang = (typeof document !== "undefined" && document.documentElement.lang) || "en";
+    let text = "";
+
+    if (lang === "hi") {
+      text = "आज की दवाइयों का विवरण इस प्रकार है: ";
+      let found = false;
+      for (const slot of ROUTINE_SLOTS) {
+        const meds = (s && s[slot.key]) || [];
+        if (meds.length > 0) {
+          found = true;
+          const names = meds.map((m) => m.brand).join(", ");
+          text += `${slot.label} में: ${names}। `;
+        }
+      }
+      if (!found) text = "आज के लिए कोई निर्धारित दवा नहीं है।";
+      else text += "कृपया अपनी दवाइयाँ समय पर लें।";
+    } else {
+      text = "Here is your medication routine for today. ";
+      let found = false;
+      for (const slot of ROUTINE_SLOTS) {
+        const meds = (s && s[slot.key]) || [];
+        if (meds.length > 0) {
+          found = true;
+          const names = meds.map((m) => m.brand).join(", ");
+          text += `${slot.label}: ${names}. `;
+        }
+      }
+      if (!found) text = "You have no scheduled medication doses for today.";
+      else text += "Please take your medications on time.";
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === "hi" ? "hi-IN" : "en-IN";
+    utterance.rate = 0.88;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const handleTogglePref = async (key, currentVal) => {
@@ -573,6 +643,11 @@ export function Summary({ pollVersion = 0, patient }) {
 
   return (
     <div ref={scope} className="flex flex-col gap-6">
+      {/* WCAG 2.2 AA ARIA Live Region for screen reader announcements */}
+      <div aria-live="polite" role="status" className="sr-only">
+        {adherenceAnnouncement}
+      </div>
+
       {/* Background refresh / sync telemetry badge */}
       {isRefreshing && (
         <div className="flex items-center gap-1.5 text-xs text-ui-blue bg-ui-surface-subtle border border-ui-border-decorative px-3 py-1.5 rounded-lg w-fit shadow-xs animate-in fade-in duration-150" role="status">
@@ -811,10 +886,26 @@ export function Summary({ pollVersion = 0, patient }) {
         title="Daily Dose Schedule & WhatsApp Adherence"
         sub="Interactive medication timeline with real-time dose confirmation and WhatsApp telemetry"
         actions={
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-ui-surface-subtle text-ui-text text-xs font-semibold rounded-full border border-ui-border-decorative">
-            <span className="w-2 h-2 rounded-full bg-ui-success" />
-            <span>Today&apos;s Active Regimen</span>
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleSpeakDoses(s)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors shadow-xs min-h-[38px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${
+                isSpeaking
+                  ? "bg-rose-100 border-rose-300 text-rose-800 animate-pulse"
+                  : "bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-900"
+              }`}
+              title="Speak today's schedule aloud for elderly listeners"
+              aria-label={isSpeaking ? "Stop reading schedule aloud" : "Read today's schedule aloud"}
+            >
+              {isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}
+              <span>{isSpeaking ? "Stop Reading" : "🔊 Read Schedule Aloud"}</span>
+            </button>
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-ui-surface-subtle text-ui-text text-xs font-semibold rounded-full border border-ui-border-decorative">
+              <span className="w-2 h-2 rounded-full bg-ui-success" />
+              <span>Today&apos;s Active Regimen</span>
+            </span>
+          </div>
         }
       >
         {/* Responsive 4-Column Routine Timeline */}

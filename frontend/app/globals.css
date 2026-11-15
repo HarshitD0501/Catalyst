@@ -3802,3 +3802,42 @@ body {
   box-shadow: 0 1px 6px rgba(36, 87, 167, 0.3);
 }
 
+/* ==========================================================================
+   SENIOR ACCESSIBILITY MODE (WCAG 2.2 AA / AAA ENHANCEMENT)
+   - Min 48x48px interactive touch targets
+   - High contrast text (>= 7:1 ratio)
+   - Prominent focus outlines for keyboard navigation
+   - Enhanced font sizes for elderly readability
+   ========================================================================== */
+html.senior-mode {
+  font-size: 18px;
+}
+
+html.senior-mode button,
+html.senior-mode [role="button"],
+html.senior-mode input[type="button"],
+html.senior-mode input[type="submit"] {
+  min-height: 48px;
+  min-width: 48px;
+  font-size: 1rem;
+}
+
+html.senior-mode a {
+  min-height: 44px;
+}
+
+html.senior-mode :focus-visible {
+  outline: 3px solid #166534 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px rgba(22, 101, 52, 0.25) !important;
+}
+
+html.senior-mode .text-ui-text-secondary {
+  color: #1E293B !important; /* Enhanced 7:1 contrast against light background */
+}
+
+html.senior-mode .bg-ui-surface {
+  border-width: 1.5px !important;
+  border-color: #CBD5E1 !important;
+}
+

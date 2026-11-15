@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import dynamic from "next/dynamic";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function ModuleLoadingFallback({ title = "Loading information…", sub = "Please wait while records and data are prepared…" }) {
   return (
@@ -180,6 +181,7 @@ export default function Dashboard({
   const menuButtonRef = useRef(null);
   const drawerRef = useRef(null);
   const drawerCloseBtnRef = useRef(null);
+  const { seniorMode, toggleSeniorMode, language, setLanguage, t } = useLanguage();
 
   const current = SECTIONS.find((s) => s.key === active) || SECTIONS[0];
   const Comp = current.Comp;
@@ -442,17 +444,32 @@ export default function Dashboard({
             {current.title}
           </span>
         </div>
-        <button
-          ref={menuButtonRef}
-          type="button"
-          onClick={() => setMobileDrawerOpen(true)}
-          aria-expanded={mobileDrawerOpen}
-          aria-controls="mobile-dashboard-drawer"
-          aria-label="Open workspace navigation"
-          className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-ui-text hover:text-ui-blue bg-ui-canvas border border-ui-border-decorative rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue shrink-0"
-        >
-          <Menu className="w-5 h-5" aria-hidden="true" />
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={toggleSeniorMode}
+            className={`p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border transition-colors ${
+              seniorMode
+                ? "bg-amber-100 border-amber-400 text-amber-900"
+                : "bg-ui-canvas border-ui-border-decorative text-ui-text"
+            }`}
+            title="Senior Accessibility Mode"
+            aria-pressed={seniorMode}
+          >
+            <span className="text-base" aria-hidden="true">👓</span>
+          </button>
+          <button
+            ref={menuButtonRef}
+            type="button"
+            onClick={() => setMobileDrawerOpen(true)}
+            aria-expanded={mobileDrawerOpen}
+            aria-controls="mobile-dashboard-drawer"
+            aria-label="Open workspace navigation"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-ui-text hover:text-ui-blue bg-ui-canvas border border-ui-border-decorative rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue shrink-0"
+          >
+            <Menu className="w-5 h-5" aria-hidden="true" />
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer Modal Sheet */}
@@ -575,7 +592,32 @@ export default function Dashboard({
               {current.sub}
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={toggleSeniorMode}
+              className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg border transition-all shadow-xs min-h-[40px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
+                seniorMode
+                  ? "bg-amber-100 border-amber-400 text-amber-900 ring-2 ring-amber-400/50"
+                  : "bg-ui-surface hover:bg-ui-surface-subtle text-ui-text border-ui-border-decorative"
+              }`}
+              title={t.seniorModeHelp || "Toggle Senior Accessibility Mode"}
+              aria-pressed={seniorMode}
+            >
+              <span className="text-base" aria-hidden="true">👓</span>
+              <span>{seniorMode ? "Senior Mode: ON" : "Senior Mode"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setLanguage(language === "hi" ? "en" : "hi")}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-ui-surface hover:bg-ui-surface-subtle text-ui-text border border-ui-border-decorative rounded-lg shadow-xs min-h-[40px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue"
+              title="Switch Language"
+            >
+              <span aria-hidden="true">🌐</span>
+              <span>{language === "hi" ? "English" : "हिन्दी"}</span>
+            </button>
+
             <span className="flex items-center gap-1.5 px-3 py-1 bg-ui-surface border border-ui-border-decorative text-ui-text text-xs font-semibold rounded-full shadow-sm">
               <span className="w-2 h-2 rounded-full bg-ui-success" aria-hidden="true" />
               <span>Verified Prescriptions</span>

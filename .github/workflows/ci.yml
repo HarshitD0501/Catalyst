@@ -46,6 +46,13 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Run frontend unit & verification suites
+        working-directory: frontend
+        run: |
+          node scripts/test-dependencies.mjs
+          node scripts/test-history-basket.mjs
+          node scripts/test-resource-cache.mjs
+
       - name: Run Next.js production build
         working-directory: frontend
         run: npm run build

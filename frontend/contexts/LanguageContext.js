@@ -51,7 +51,14 @@ const translations = {
     // History page
     emptyHistoryTitle: "No saved reports yet",
     emptyHistoryDesc: "Confirmed reports you generate on this phone will appear here for reprint and review.",
-    localOnlyWarning: "Notice: Reports are saved strictly in this browser's IndexedDB. Clearing website data will remove local history."
+    localOnlyWarning: "Notice: Reports are saved strictly in this browser's IndexedDB. Clearing website data will remove local history.",
+    // Senior Mode & Accessibility
+    seniorModeLabel: "Senior Accessibility Mode",
+    seniorModeHelp: "48px large touch targets, high-contrast, larger text",
+    readDosesAloud: "Read Today's Routine Aloud",
+    stopReading: "Stop Reading",
+    routineReadoutIntro: "Here is your medication routine for today.",
+    noMedsToday: "You have no scheduled medication doses for today."
   },
   hi: {
     appName: "कैटालिस्ट (Catalyst)",
@@ -101,18 +108,28 @@ const translations = {
     // History page
     emptyHistoryTitle: "अभी तक कोई रिपोर्ट नहीं है",
     emptyHistoryDesc: "इस फ़ोन पर बनाई गई पुष्ट रिपोर्ट यहाँ पुनः देखने और प्रिंट करने के लिए मिलेंगी।",
-    localOnlyWarning: "ध्यान दें: रिपोर्ट केवल इस ब्राउज़र में रहती हैं। ब्राउज़र डेटा साफ़ करने पर इतिहास हट जाएगा।"
+    localOnlyWarning: "ध्यान दें: रिपोर्ट केवल इस ब्राउज़र में रहती हैं। ब्राउज़र डेटा साफ़ करने पर इतिहास हट जाएगा।",
+    // Senior Mode & Accessibility
+    seniorModeLabel: "वरिष्ठ मोड (बड़ा पाठ व सुलभता)",
+    seniorModeHelp: "बड़े टच बटन, 7:1 उच्च कंट्रास्ट और स्पष्ट आवाज़",
+    readDosesAloud: "आज की दवाइयाँ बोलकर सुनाएँ",
+    stopReading: "बोलना रोकें",
+    routineReadoutIntro: "आज की आपकी दवाइयों का विवरण इस प्रकार है।",
+    noMedsToday: "आज के लिए कोई निर्धारित दवा नहीं है।"
   }
 };
 
 const LanguageContext = createContext({
   language: "en",
   setLanguage: () => {},
+  seniorMode: false,
+  toggleSeniorMode: () => {},
   t: translations.en
 });
 
 export function LanguageProvider({ children }) {
   const [language, setLanguageState] = useState("en");
+  const [seniorMode, setSeniorModeState] = useState(false);
 
   // Fix F40: Synchronize document.documentElement.lang on initial restore from localStorage
   useEffect(() => {
@@ -125,6 +142,14 @@ export function LanguageProvider({ children }) {
         }
       } else if (typeof document !== "undefined") {
         document.documentElement.lang = "en";
+      }
+
+      const savedSenior = localStorage.getItem("catalyst_senior_mode");
+      if (savedSenior === "true") {
+        setSeniorModeState(true);
+        if (typeof document !== "undefined") {
+          document.documentElement.classList.add("senior-mode");
+        }
       }
     } catch {}
   }, []);
@@ -139,8 +164,33 @@ export function LanguageProvider({ children }) {
     }
   };
 
+  const toggleSeniorMode = () => {
+    setSeniorModeState((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("catalyst_senior_mode", String(next));
+      } catch {}
+      if (typeof document !== "undefined") {
+        if (next) {
+          document.documentElement.classList.add("senior-mode");
+        } else {
+          document.documentElement.classList.remove("senior-mode");
+        }
+      }
+      return next;
+    });
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t: translations[language] }}>
+    <LanguageContext.Provider
+      value={{
+        language,
+        setLanguage,
+        seniorMode,
+        toggleSeniorMode,
+        t: translations[language] || translations.en,
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   );

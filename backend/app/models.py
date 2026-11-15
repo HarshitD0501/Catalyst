@@ -149,6 +149,7 @@ class ReminderTask(Base):
     __table_args__ = (
         UniqueConstraint("idempotency_key", name="uq_reminder_task_idempotency_key"),
         Index("ix_reminder_tasks_claim", "state", "reminder_at_utc", "lease_until"),
+        Index("ix_reminder_tasks_status_utc", "state", "reminder_at_utc"),
     )
 
     id = Column(Integer, primary_key=True)
@@ -220,6 +221,7 @@ class DoseAdherence(Base):
     __table_args__ = (
         Index("ix_dose_adherence_patient_date", "patient_id", "dose_date"),
         Index("ix_dose_adherence_patient_slot", "patient_id", "dose_date", "slot"),
+        Index("ix_dose_adherence_patient_time", "patient_id", "scheduled_time"),
         UniqueConstraint("patient_id", "medicine_id", "dose_date", "slot", name="uq_dose_adherence_slot"),
     )
 
