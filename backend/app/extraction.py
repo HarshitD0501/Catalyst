@@ -65,6 +65,46 @@ _ALLOWED = (
     "duration_days", "confidence", "notes",
 )
 
+PROMPT_INJECTION_PATTERNS = [
+    r"ignore\s+(?:all\s+)?previous\s+instructions",
+    r"disregard\s+(?:all\s+)?previous\s+instructions",
+    r"system\s+(?:prompt\s+)?override",
+    r"you\s+are\s+now\s+(?:an?\s+)?unrestricted",
+    r"developer\s+mode\s+output",
+    r"bypass\s+all\s+safety\s+filters",
+    r"drop\s+table\s+patients",
+    r"output\s+all\s+(?:api\s+)?keys",
+]
+_INJECTION_RE = re.compile("|".join(PROMPT_INJECTION_PATTERNS), re.IGNORECASE)
+
+
+def detect_prompt_injection(text: str | None) -> bool:
+    """Check text for known adversarial jailbreak and prompt-override instructions."""
+    if not text:
+        return False
+    return bool(_INJECTION_RE.search(text))
+
+
+def sanitize_and_validate_extraction(raw: dict) -> dict:
+    """Ensure untrusted OCR data cannot inject instructions or malicious payloads (REQ-10)."""
+    if not isinstance(raw, dict):
+        return raw
+
+    for field in ("prescriber_name", "prescriber_specialty", "raw_ocr"):
+        val = raw.get(field)
+        if isinstance(val, str) and detect_prompt_injection(val):
+            raise ValueError(f"Prompt injection detected in prescription data ({field}): instructions are rejected.")
+
+    for med in raw.get("meds", []):
+        if isinstance(med, dict):
+            for m_field in ("brand", "dosage_notation", "notes", "salt"):
+                m_val = med.get(m_field)
+                if isinstance(m_val, str) and detect_prompt_injection(m_val):
+                    raise ValueError(
+                        f"Prompt injection detected in medicine field ({m_field}): instructions are rejected."
+                    )
+    return raw
+
 
 def _clean_json_str(text: str) -> str:
     """Extract JSON substring, strip markdown blocks and remove trailing commas before parsing."""
@@ -79,16 +119,61 @@ def _clean_json_str(text: str) -> str:
 
 
 def _gemini_extract(image_bytes: bytes, mime: str) -> dict:
-    import google.generativeai as genai
+    """Multimodal clinical prescription extraction using Google GenAI SDK.
+    Supports modern `google.genai` SDK with fallback to `google.generativeai`.
+    Enforces strict safety boundaries against prompt injection (REQ-10).
+    """
+    cleaned_text = None
 
-    genai.configure(api_key=settings.gemini_api_key)
-    model = genai.GenerativeModel(settings.gemini_model)
-    resp = model.generate_content(
-        [_PROMPT, {"mime_type": mime, "data": image_bytes}],
-        generation_config={"response_mime_type": "application/json"},
-    )
-    cleaned = _clean_json_str(resp.text)
-    return json.loads(cleaned)
+    # 1. Try modern google-genai SDK (Gemini 2.0 / 1.5)
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=settings.gemini_api_key)
+        gemini_model = settings.gemini_model or "gemini-2.0-flash"
+        if gemini_model == "gemini-flash-latest":
+            gemini_model = "gemini-2.0-flash"
+
+        response = client.models.generate_content(
+            model=gemini_model,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type=mime),
+                _PROMPT,
+            ],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                temperature=0.1,
+            ),
+        )
+        cleaned_text = response.text
+    except Exception as exc:
+        logger.info("google.genai client call not completed (%s); trying google.generativeai fallback", exc)
+
+    # 2. Fallback to google.generativeai
+    if not cleaned_text:
+        try:
+            import google.generativeai as legacy_genai
+
+            legacy_genai.configure(api_key=settings.gemini_api_key)
+            model_name = settings.gemini_model or "gemini-1.5-flash"
+            model = legacy_genai.GenerativeModel(model_name)
+            resp = model.generate_content(
+                [_PROMPT, {"mime_type": mime, "data": image_bytes}],
+                generation_config={"response_mime_type": "application/json"},
+            )
+            cleaned_text = resp.text
+        except Exception as legacy_exc:
+            raise ExtractionUnavailable(f"Gemini VLM extraction failed: {legacy_exc}") from legacy_exc
+
+    cleaned = _clean_json_str(cleaned_text)
+    data = json.loads(cleaned)
+
+    # Sanitize and guard against adversarial prompt injection inside transcribed handwriting
+    if isinstance(data, dict):
+        if "meds" not in data or not isinstance(data.get("meds"), list):
+            data["meds"] = []
+    return sanitize_and_validate_extraction(data)
 
 
 def _openai_vlm(base_url: str, model: str, api_key: str, image_bytes: bytes, mime: str) -> dict:
@@ -153,7 +238,8 @@ def _extract_raw(image_bytes: bytes, mime: str) -> tuple[dict, bool]:
     last_error: Exception | None = None
     for name, base_url, model, key in _providers():
         try:
-            return _openai_vlm(base_url, model, key, image_bytes, mime), False
+            raw = _openai_vlm(base_url, model, key, image_bytes, mime)
+            return sanitize_and_validate_extraction(raw), False
         except Exception as e:
             last_error = e
             logger.warning("%s extraction failed (%s): %s. Trying next...", name, type(e).__name__, e)
@@ -166,7 +252,7 @@ def _extract_raw(image_bytes: bytes, mime: str) -> tuple[dict, bool]:
 
     if settings.enable_mock_extraction:
         logger.warning("Using the explicitly enabled development mock prescription.")
-        return _MOCK, True
+        return sanitize_and_validate_extraction(_MOCK), True
     if last_error is not None:
         raise ExtractionUnavailable(
             "Prescription extraction providers are unavailable. Please try again later."

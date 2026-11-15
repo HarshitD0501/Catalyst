@@ -40,6 +40,9 @@ class ExtractionResult(BaseModel):
     mock: bool = False  # True only when explicit development mock extraction is used
 
 
+ExtractedPrescription = ExtractionResult
+
+
 class MedicineOut(BaseModel):
     id: int
     brand: str

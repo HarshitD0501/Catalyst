@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 
 export default function LazyStoreMap({
@@ -11,6 +11,7 @@ export default function LazyStoreMap({
   focusedCenter = null,
   onSelectStore,
 }) {
+  const [mapError, setMapError] = useState(false);
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const leafletModuleRef = useRef(null);
@@ -54,6 +55,9 @@ export default function LazyStoreMap({
         mapInstanceRef.current = map;
         setTimeout(() => map.invalidateSize(), 150);
       }
+    }).catch((err) => {
+      console.warn("Leaflet map load failed, displaying truthful fallback:", err);
+      setMapError(true);
     });
 
     return () => {
@@ -237,6 +241,20 @@ export default function LazyStoreMap({
       map.panTo([selectedStore.latitude, selectedStore.longitude]);
     }
   }, [stores, selectedStore, userCoords, activeRoute, focusedCenter, onSelectStore]);
+
+  if (mapError) {
+    return (
+      <div className="w-full h-80 sm:h-[400px] md:h-[440px] bg-ui-surface-subtle border border-ui-border-decorative rounded-2xl shadow-ui-card p-6 flex flex-col items-center justify-center text-center">
+        <div className="w-12 h-12 rounded-full bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center text-xl mb-3">
+          🗺️
+        </div>
+        <h4 className="font-serif font-bold text-sm text-ui-text">Map Preview Temporarily Unavailable</h4>
+        <p className="text-xs text-ui-text-secondary max-w-sm mt-1">
+          Interactive map tiles could not be loaded. Verified pharmacy addresses, timings, and contact numbers remain fully accessible in the directory list below.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-80 sm:h-[400px] md:h-[440px] bg-ui-surface border border-ui-border-decorative rounded-2xl shadow-ui-card overflow-hidden relative">
