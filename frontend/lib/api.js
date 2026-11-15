@@ -170,7 +170,9 @@ export async function login(identifier, password, role) {
     timeoutMs: 15000,
   });
   setToken(data.token);
-  if (data.patient?.id) {
+  if (data.patient?.role === "caregiver") {
+    setActivePatientId(null);
+  } else if (data.patient?.id) {
     setActivePatientId(data.patient.id);
   }
   return data.patient;
@@ -183,7 +185,9 @@ export async function register({ name, email, phone, password, role }) {
     timeoutMs: 20000,
   });
   setToken(data.token);
-  if (data.patient?.id) {
+  if (data.patient?.role === "caregiver") {
+    setActivePatientId(null);
+  } else if (data.patient?.id) {
     setActivePatientId(data.patient.id);
   }
   return data.patient;
@@ -196,7 +200,9 @@ export async function googleAuth({ credential, mode, role }) {
     timeoutMs: 20000,
   });
   setToken(data.token);
-  if (data.patient?.id) {
+  if (data.patient?.role === "caregiver") {
+    setActivePatientId(null);
+  } else if (data.patient?.id) {
     setActivePatientId(data.patient.id);
   }
   return data.patient;

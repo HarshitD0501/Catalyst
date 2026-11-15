@@ -74,7 +74,9 @@ export function AuthProvider({ children }) {
     rememberWorkspaceRole(authenticatedUser?.role);
     setSessionError("");
     setReady(true);
-    if (authenticatedUser?.id) {
+    if (authenticatedUser?.role === "caregiver") {
+      setActivePatientId(null);
+    } else if (authenticatedUser?.id) {
       setActivePatientId(authenticatedUser.id);
     }
     setIsLoginOpen(false);
@@ -136,7 +138,7 @@ export function AuthProvider({ children }) {
           setUser(me);
           rememberWorkspaceRole(me?.role);
           setSessionError("");
-          if (me?.id) setActivePatientId(me.id);
+          if (me?.role !== "caregiver" && me?.id) setActivePatientId(me.id);
           setReady(true);
         }
       } catch (error) {

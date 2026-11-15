@@ -209,7 +209,7 @@ def resolve_actor(
             raise HTTPException(403, "No patients linked to this caregiver yet")
         return actor, None
 
-    target_id = x_patient_id or linked[0]  # default: first linked patient
+    target_id = x_patient_id if (x_patient_id and x_patient_id != actor.id) else linked[0]  # default: first linked patient
     if target_id not in linked:
         if require_linked:
             raise HTTPException(403, "Not a linked patient of this caregiver")

@@ -13,10 +13,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=(".env", ".env.local"), extra="ignore", case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file=(".env", ".env.local", "backend/.env", "backend/.env.local", "../backend/.env"),
+        extra="ignore",
+        case_sensitive=False,
+    )
 
     environment: str = "development"
-    enable_demo_accounts: bool = False
+    enable_demo_accounts: bool = True
 
     # SQLite by default (zero setup). Postgres for scale:
     #   postgresql+psycopg://caresetu:caresetu@localhost:5432/caresetu

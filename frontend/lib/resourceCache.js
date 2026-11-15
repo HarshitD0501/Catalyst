@@ -12,12 +12,22 @@
 
 function getLocalToken() {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem("aushadh_token");
+  return (
+    window.localStorage.getItem("catalyst_token") ||
+    window.localStorage.getItem("caresetu_token") ||
+    window.localStorage.getItem("aushadh_token") ||
+    null
+  );
 }
 
 function getLocalPatientId() {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem("aushadh_patient_id");
+  return (
+    window.localStorage.getItem("catalyst_patient_id") ||
+    window.localStorage.getItem("caresetu_patient_id") ||
+    window.localStorage.getItem("aushadh_patient_id") ||
+    null
+  );
 }
 
 const cacheStore = new Map();
