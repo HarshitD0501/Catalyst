@@ -13,7 +13,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
+    model_config = SettingsConfigDict(env_file=(".env", ".env.local"), extra="ignore", case_sensitive=False)
 
     environment: str = "development"
     enable_demo_accounts: bool = False

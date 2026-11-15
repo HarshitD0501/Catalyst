@@ -11,7 +11,8 @@ import os
 try:  # dotenv is optional — env vars work fine without it
     from dotenv import load_dotenv
 
-    load_dotenv()
+    load_dotenv(".env.local")
+    load_dotenv(".env")
 except Exception:  # pragma: no cover - convenience only
     pass
 

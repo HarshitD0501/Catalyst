@@ -6,6 +6,7 @@ __pycache__/
 # Secrets & local DB — never commit
 .env
 .env.*
+!.env.example
 *.db
 *.db-wal
 *.db-shm
