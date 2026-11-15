@@ -387,4 +387,41 @@ export async function revokeCareCircleMember(linkId) {
   });
 }
 
+export async function createMedication(data) {
+  return api("/medications", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateMedication(medicineId, data) {
+  return api(`/medications/${medicineId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteMedication(medicineId) {
+  return api(`/medications/${medicineId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function checkInDoseAdherence(adherenceId, data) {
+  return api(`/adherence/${adherenceId}/check-in`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function triggerEmailRemindersCheck() {
+  return api("/reminders/trigger-email-check", {
+    method: "POST",
+  });
+}
+
+
 

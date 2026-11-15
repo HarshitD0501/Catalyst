@@ -157,6 +157,7 @@ class ReminderPrefsIn(BaseModel):
     auto_reminders_enabled: Optional[bool] = None
     whatsapp_reminders_enabled: Optional[bool] = None
     call_reminders_enabled: Optional[bool] = None
+    email_reminders_enabled: Optional[bool] = None
     reminder_time_morning: Optional[str] = None
     reminder_time_afternoon: Optional[str] = None
     reminder_time_night: Optional[str] = None
@@ -166,9 +167,45 @@ class ReminderPrefsOut(BaseModel):
     auto_reminders_enabled: bool
     whatsapp_reminders_enabled: bool
     call_reminders_enabled: bool
+    email_reminders_enabled: bool = True
     reminder_time_morning: str
     reminder_time_afternoon: str
     reminder_time_night: str
+
+
+class MedicationCreateIn(BaseModel):
+    brand: str = Field(min_length=1, max_length=100)
+    salt: Optional[str] = None
+    strength: Optional[str] = None
+    form: Optional[str] = "tablet"
+    dosage_notation: Optional[str] = None
+    timing: Optional[list[str]] = None
+    instructions: Optional[str] = None
+    duration_days: Optional[int] = None
+    start_date: Optional[str] = None
+    prn: bool = False
+    prescriber_name: Optional[str] = "Manual Entry"
+    patient_id: Optional[str] = None
+
+
+class MedicationUpdateIn(BaseModel):
+    brand: Optional[str] = None
+    salt: Optional[str] = None
+    strength: Optional[str] = None
+    form: Optional[str] = None
+    dosage_notation: Optional[str] = None
+    timing: Optional[list[str]] = None
+    instructions: Optional[str] = None
+    duration_days: Optional[int] = None
+    prn: Optional[bool] = None
+    prescriber_name: Optional[str] = None
+    status: Optional[str] = None
+
+
+class DoseCheckIn(BaseModel):
+    status: Literal["taken", "missed"]
+    notes: Optional[str] = None
+    client_timestamp: Optional[Union[datetime, str]] = None
 
 
 class StopMedicineIn(BaseModel):

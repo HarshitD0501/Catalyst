@@ -87,6 +87,15 @@ class Settings(BaseSettings):
     # gets the job. Must match agent_name in WorkerOptions (voice.py).
     livekit_agent_name: str = "catalyst-voice"
 
+    # Transactional Email & Notifications (Resend API & SMTP)
+    resend_api_key: str = ""
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_pass: str = ""
+    smtp_from: str = "Catalyst Health <noreply@catalysthealth.app>"
+    smtp_use_tls: bool = True
+
     # Outbound Safety, Kill Switch & Allowlist (Batch 4: ERR-002, ERR-019)
     outbound_dispatch_enabled: bool = True
     outbound_phone_allowlist: str = ""  # Comma-separated E.164 numbers; blank => all allowed

@@ -513,6 +513,14 @@ async def process_reminder_task(
             db.commit()
             return {"status": "cancelled", "reason": "consent_withdrawn", "task_id": task.id}
 
+    elif task.channel == "email":
+        if patient.email_reminders_enabled is False or patient.email_consent_withdrawn_at is not None:
+            task.state = "cancelled"
+            task.lease_until = None
+            task.last_error = "Email reminder consent absent or withdrawn at dispatch time"
+            db.commit()
+            return {"status": "cancelled", "reason": "consent_withdrawn", "task_id": task.id}
+
     # 5. Dispatch
     try:
         if task.channel == "voice":
@@ -567,6 +575,85 @@ async def process_reminder_task(
             task.last_error = None
             db.commit()
             return {"status": "dispatched", "task_id": task.id}
+
+        elif task.channel == "email":
+            from . import email_sender
+            from .models import DoseAdherence
+
+            to_addr = task.recipient_email or patient.email
+            if not to_addr:
+                task.state = "failed"
+                task.lease_until = None
+                task.last_error = "No recipient email address available"
+                db.commit()
+                return {"status": "failed", "reason": "no_email", "task_id": task.id}
+
+            subj = "Catalyst Health Notification"
+            html = "<p>Notification from Catalyst Health</p>"
+
+            if task.kind == "dose" and task.dose_adherence_id:
+                adh = db.get(DoseAdherence, task.dose_adherence_id)
+                med_brand = adh.medicine.brand if (adh and adh.medicine) else "Prescribed Medicine"
+                strength = adh.medicine.strength if (adh and adh.medicine) else ""
+                slot = adh.slot if adh else "scheduled"
+                sch_time = adh.scheduled_time if adh else ""
+                subj, html = email_sender.build_upcoming_dose_email(
+                    patient_name=patient.name or "Patient",
+                    medicine_brand=med_brand,
+                    dosage=strength,
+                    slot=slot,
+                    scheduled_time=sch_time,
+                    notes=adh.notes if adh else None,
+                )
+            elif task.kind == "missed_dose" and task.dose_adherence_id:
+                adh = db.get(DoseAdherence, task.dose_adherence_id)
+                med_brand = adh.medicine.brand if (adh and adh.medicine) else "Prescribed Medicine"
+                strength = adh.medicine.strength if (adh and adh.medicine) else ""
+                slot = adh.slot if adh else "scheduled"
+                sch_time = adh.scheduled_time if adh else ""
+                is_caregiver = (task.recipient_email and task.recipient_email != patient.email)
+                subj, html = email_sender.build_missed_dose_email(
+                    patient_name=patient.name or "Patient",
+                    medicine_brand=med_brand,
+                    dosage=strength,
+                    slot=slot,
+                    scheduled_time=sch_time,
+                    recipient_role="caregiver" if is_caregiver else "patient",
+                )
+            elif task.kind == "followup" and task.appointment_id:
+                appt = db.get(Appointment, task.appointment_id)
+                dr_name = appt.doctor_name if appt else "Doctor"
+                spec = appt.doctor_specialty if appt else "General Medicine"
+                appt_time_str = appt.appointment_at_utc.strftime("%d %b %Y, %I:%M %p UTC") if appt else ""
+                subj, html = email_sender.build_appointment_email(
+                    patient_name=patient.name or "Patient",
+                    doctor_name=dr_name,
+                    specialty=spec,
+                    appointment_time_str=appt_time_str,
+                )
+
+            dispatch_res = email_sender.send_email(
+                to_email=to_addr,
+                subject=subj,
+                html_body=html,
+                event_type=task.kind,
+            )
+
+            task.state = "dispatched"
+            task.provider_message_id = dispatch_res.get("message_id")
+            task.lease_until = None
+            task.last_error = None
+
+            log_entry = ReminderLog(
+                patient_id=patient.id,
+                channel="email",
+                kind=task.kind,
+                body=subj,
+                status="sent",
+            )
+            db.add(log_entry)
+            db.commit()
+            return {"status": "dispatched", "task_id": task.id, "message_id": task.provider_message_id}
 
         else:
             task.state = "failed"
@@ -644,3 +731,111 @@ def sync_appointment_from_report(
         channel="voice",
     )
     return appt
+
+
+def schedule_missed_dose_alerts(
+    db: Session,
+    dose_adherence: Any,
+) -> list[ReminderTask]:
+    """When a dose is marked missed or overdue, queue email alerts to patient and active caregivers."""
+    created_tasks = []
+    patient = db.get(Patient, dose_adherence.patient_id)
+    if not patient:
+        return created_tasks
+
+    now_utc = datetime.now(timezone.utc)
+    # 1. Alert to patient if email present
+    if patient.email and patient.email_reminders_enabled is not False:
+        idempotency_key = f"missed_dose_patient_{dose_adherence.id}_{now_utc.strftime('%Y%m%d%H%M')}"
+        existing = db.query(ReminderTask).filter(ReminderTask.idempotency_key == idempotency_key).first()
+        if not existing:
+            t_patient = ReminderTask(
+                patient_id=patient.id,
+                dose_adherence_id=dose_adherence.id,
+                channel="email",
+                kind="missed_dose",
+                recipient_email=patient.email,
+                reminder_at_utc=now_utc,
+                idempotency_key=idempotency_key,
+                state="pending",
+            )
+            db.add(t_patient)
+            created_tasks.append(t_patient)
+
+    # 2. Alert to active caregivers in care circle
+    from .models import CaregiverLink
+    links = (
+        db.query(CaregiverLink)
+        .filter(
+            CaregiverLink.patient_id == patient.id,
+            CaregiverLink.status == "ACTIVE",
+            CaregiverLink.revoked_at.is_(None),
+        )
+        .all()
+    )
+    for link in links:
+        caregiver = db.get(Patient, link.caregiver_id)
+        if caregiver and caregiver.email:
+            cg_key = f"missed_dose_cg_{caregiver.id}_{dose_adherence.id}_{now_utc.strftime('%Y%m%d%H%M')}"
+            existing_cg = db.query(ReminderTask).filter(ReminderTask.idempotency_key == cg_key).first()
+            if not existing_cg:
+                t_cg = ReminderTask(
+                    patient_id=patient.id,
+                    dose_adherence_id=dose_adherence.id,
+                    channel="email",
+                    kind="missed_dose",
+                    recipient_email=caregiver.email,
+                    reminder_at_utc=now_utc,
+                    idempotency_key=cg_key,
+                    state="pending",
+                )
+                db.add(t_cg)
+                created_tasks.append(t_cg)
+
+    db.commit()
+    for t in created_tasks:
+        db.refresh(t)
+    return created_tasks
+
+
+def schedule_dose_email_reminders(
+    db: Session,
+    patient_id: str,
+    date_str: Optional[str] = None,
+) -> list[ReminderTask]:
+    """Queue upcoming dose email reminders for today's active medicines."""
+    from .models import DoseAdherence
+    from .whatsapp import sync_today_adherence
+
+    patient = db.get(Patient, patient_id)
+    if not patient or not patient.email or patient.email_reminders_enabled is False:
+        return []
+
+    adherences = sync_today_adherence(db, patient_id)
+    now_utc = datetime.now(timezone.utc)
+    created = []
+
+    for adh in adherences:
+        if adh.status != "pending":
+            continue
+        key = f"email_dose_{adh.id}_{adh.dose_date}_{adh.slot}"
+        existing = db.query(ReminderTask).filter(ReminderTask.idempotency_key == key).first()
+        if not existing:
+            task = ReminderTask(
+                patient_id=patient.id,
+                dose_adherence_id=adh.id,
+                channel="email",
+                kind="dose",
+                recipient_email=patient.email,
+                reminder_at_utc=now_utc,
+                idempotency_key=key,
+                state="pending",
+            )
+            db.add(task)
+            created.append(task)
+
+    db.commit()
+    for t in created:
+        db.refresh(t)
+    return created
+

@@ -112,6 +112,9 @@ class Patient(Base):
     whatsapp_consent_withdrawn_at = Column(DateTime, nullable=True)
     call_consent_source = Column(String, nullable=True)
     call_consent_withdrawn_at = Column(DateTime, nullable=True)
+    email_reminders_enabled = Column(Boolean, default=True)
+    email_consent_source = Column(String, default="signup")
+    email_consent_withdrawn_at = Column(DateTime, nullable=True)
 
 
 class Appointment(Base):
@@ -153,8 +156,10 @@ class ReminderTask(Base):
     appointment_id = Column(Integer, ForeignKey("appointments.id"), nullable=True, index=True)
     dose_adherence_id = Column(Integer, ForeignKey("dose_adherences.id"), nullable=True, index=True)
     report_id = Column(Integer, nullable=True)
-    channel = Column(String, default="whatsapp")  # whatsapp | voice
-    kind = Column(String, default="followup")  # followup | dose
+    channel = Column(String, default="whatsapp")  # whatsapp | voice | email
+    kind = Column(String, default="followup")  # followup | dose | missed_dose
+    recipient_email = Column(String, nullable=True)
+    provider_message_id = Column(String, nullable=True)
     reminder_at_utc = Column(DateTime, nullable=False, index=True)
     offset_minutes = Column(Integer, default=2880)  # e.g. 2880 mins = 48 hours
     state = Column(String, default="pending")  # pending | claimed | dispatched | deferred | failed | cancelled
@@ -229,10 +234,13 @@ class DoseAdherence(Base):
     channel = Column(String, default="whatsapp")  # whatsapp | web | voice
     whatsapp_message_id = Column(String, nullable=True, index=True)
     notes = Column(String, nullable=True)
+    logged_by_user_id = Column(String, ForeignKey("patients.id"), nullable=True)
+    actor_role = Column(String, nullable=True)  # patient | primary | secondary | viewer
     created_at = Column(DateTime, default=_now)
 
     medicine = relationship("Medicine")
-    patient = relationship("Patient")
+    patient = relationship("Patient", foreign_keys=[patient_id])
+    logged_by = relationship("Patient", foreign_keys=[logged_by_user_id])
 
 
 class CaregiverLink(Base):

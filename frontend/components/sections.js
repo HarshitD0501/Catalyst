@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { api, uploadReport, confirmReport } from "@/lib/api";
+import { api, uploadReport, confirmReport, createMedication } from "@/lib/api";
 import { fetchWithResourceCache } from "@/lib/resourceCache";
 import { useReveal } from "@/lib/gsap";
 import {
@@ -52,6 +52,8 @@ import {
   ShieldCheck,
   Activity,
   CheckCircle,
+  Plus,
+  Mail,
 } from "lucide-react";
 
 // Shared GET-with-loading/error helper with deduplication & scoped caching. Re-fetches when `deps` change.
@@ -469,7 +471,10 @@ export function Summary({ pollVersion = 0, patient }) {
 
   const handleSimulateReply = async (adherence_id, action) => {
     try {
-      await api("/whatsapp/simulate-reply", { method: "POST", json: { adherence_id, action } });
+      await api(`/adherence/${adherence_id}/check-in`, {
+        method: "POST",
+        json: { status: action === "take" ? "taken" : "missed" },
+      });
       setAdhVersion((v) => v + 1);
     } catch (e) {
       alert(e.message || "Failed to record adherence");
@@ -669,6 +674,34 @@ export function Summary({ pollVersion = 0, patient }) {
               onClick={() => handleTogglePref("call_reminders_enabled", p.call_reminders_enabled)}
             >
               {p.call_reminders_enabled ? "🟢 Active" : "⏸️ Paused"}
+            </button>
+          </div>
+
+          {/* Email Alerts Switch */}
+          <div className="p-3.5 rounded-xl border border-ui-border-decorative bg-ui-surface shadow-xs flex items-center justify-between gap-3 md:col-span-2 lg:col-span-1">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                <Mail size={19} />
+              </div>
+              <div className="min-w-0">
+                <div className="font-serif font-bold text-sm text-ui-text truncate">
+                  Email Alerts &amp; Care Circle
+                </div>
+                <div className="text-xs text-ui-text-secondary truncate mt-0.5">
+                  Dose reminders and caregiver missed-dose alerts
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors shadow-xs min-w-[88px] text-center shrink-0 ${
+                p.email_reminders_enabled !== false
+                  ? "bg-emerald-700 hover:bg-emerald-800 text-white"
+                  : "bg-ui-surface hover:bg-ui-surface-subtle text-ui-text-secondary border border-ui-border-decorative"
+              }`}
+              onClick={() => handleTogglePref("email_reminders_enabled", p.email_reminders_enabled !== false)}
+            >
+              {p.email_reminders_enabled !== false ? "🟢 Active" : "⏸️ Paused"}
             </button>
           </div>
         </div>
@@ -1082,6 +1115,16 @@ function MedCard({ m, onStop, onToggle }) {
 export function Medicines({ pollVersion = 0, patient }) {
   const [version, setVersion] = useState(0);
   const [priceMap, setPriceMap] = useState({});
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [brand, setBrand] = useState("");
+  const [strength, setStrength] = useState("");
+  const [dosageNotation, setDosageNotation] = useState("1-0-1");
+  const [form, setForm] = useState("tablet");
+  const [timing, setTiming] = useState(["morning", "night"]);
+  const [instructions, setInstructions] = useState("After food");
+  const [durationDays, setDurationDays] = useState("");
+  const [saving, setSaving] = useState(false);
+
   const { loading, isRefreshing, error, data, lastUpdated } = useData("/medicines?include_prices=false", [version, pollVersion]);
   const scope = useReveal([loading, data]);
 
@@ -1137,6 +1180,42 @@ export function Medicines({ pollVersion = 0, patient }) {
     }
   };
 
+  const handleAddMedicine = async (e) => {
+    e.preventDefault();
+    if (!brand.trim()) {
+      alert("Please enter a brand or medicine name");
+      return;
+    }
+    setSaving(true);
+    try {
+      await createMedication({
+        brand: brand.trim(),
+        strength: strength.trim() || undefined,
+        form,
+        dosage_notation: dosageNotation.trim() || undefined,
+        timing,
+        instructions: instructions.trim() || undefined,
+        duration_days: durationDays ? parseInt(durationDays, 10) : undefined,
+      });
+      setShowAddModal(false);
+      setBrand("");
+      setStrength("");
+      setVersion((v) => v + 1);
+    } catch (err) {
+      alert(err.message || "Failed to add medication");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleSlot = (slot) => {
+    if (timing.includes(slot)) {
+      setTiming(timing.filter((s) => s !== slot));
+    } else {
+      setTiming([...timing, slot]);
+    }
+  };
+
   if (loading && !data) return <Loader label="Retrieving active prescription list…" />;
   if (error && !data) {
     return (
@@ -1147,26 +1226,177 @@ export function Medicines({ pollVersion = 0, patient }) {
       />
     );
   }
-  if (!data?.length)
-    return <Empty icon="💊">No active medicines found. Upload a prescription to get started.</Empty>;
+
   return (
     <div ref={scope} className="space-y-4">
-      {isRefreshing && (
-        <div className="flex items-center gap-1.5 text-xs text-ui-blue bg-ui-surface-subtle border border-ui-border-decorative px-3 py-1.5 rounded-lg w-fit shadow-xs animate-in fade-in duration-150" role="status">
-          <RefreshCw size={13} className="animate-spin" />
-          <span>Synchronizing active medicines…</span>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        {isRefreshing ? (
+          <div className="flex items-center gap-1.5 text-xs text-ui-blue bg-ui-surface-subtle border border-ui-border-decorative px-3 py-1.5 rounded-lg w-fit shadow-xs animate-in fade-in duration-150" role="status">
+            <RefreshCw size={13} className="animate-spin" />
+            <span>Synchronizing active medicines…</span>
+          </div>
+        ) : <div />}
+
+        <button
+          type="button"
+          onClick={() => setShowAddModal(true)}
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-ui-blue to-indigo-600 hover:from-ui-blue-hover hover:to-indigo-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-all"
+        >
+          <Plus size={15} />
+          <span>Add Medicine Manually</span>
+        </button>
+      </div>
+
+      {!data?.length ? (
+        <Empty icon="💊">
+          No active medicines found. You can add one manually using the button above or upload a prescription slip.
+        </Empty>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {data.map((m) => (
+            <MedCard
+              key={m.id}
+              m={{ ...m, prices: priceMap[m.id] || m.prices }}
+              onStop={handleStop}
+              onToggle={handleToggle}
+            />
+          ))}
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {data.map((m) => (
-        <MedCard
-          key={m.id}
-          m={{ ...m, prices: priceMap[m.id] || m.prices }}
-          onStop={handleStop}
-          onToggle={handleToggle}
-        />
-      ))}
-    </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-ui-surface border border-ui-border-decorative rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-serif font-bold text-lg text-ui-text">Add Medicine to Regimen</h3>
+                <p className="text-xs text-ui-text-secondary mt-0.5">Enter medication details to schedule automated dose check-ins.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="p-1.5 rounded-lg text-ui-text-secondary hover:text-ui-text hover:bg-ui-surface-subtle"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddMedicine} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block font-semibold text-ui-text mb-1">Brand / Medicine Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Dolo 650, Telma 40, Glycomet GP 1"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-ui-border-decorative bg-ui-surface text-ui-text text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-ui-text mb-1">Strength</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 650mg, 40mg"
+                    value={strength}
+                    onChange={(e) => setStrength(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-ui-border-decorative bg-ui-surface text-ui-text text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-ui-text mb-1">Form</label>
+                  <select
+                    value={form}
+                    onChange={(e) => setForm(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-ui-border-decorative bg-ui-surface text-ui-text text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue"
+                  >
+                    <option value="tablet">Tablet</option>
+                    <option value="capsule">Capsule</option>
+                    <option value="syrup">Syrup</option>
+                    <option value="injection">Injection</option>
+                    <option value="drops">Drops</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-ui-text mb-1">Daily Timing Slots</label>
+                <div className="flex items-center gap-3">
+                  {[
+                    { key: "morning", label: "🌅 Morning" },
+                    { key: "afternoon", label: "☀️ Afternoon" },
+                    { key: "night", label: "🌙 Night" },
+                  ].map((s) => (
+                    <label key={s.key} className="flex items-center gap-1.5 cursor-pointer text-ui-text select-none">
+                      <input
+                        type="checkbox"
+                        checked={timing.includes(s.key)}
+                        onChange={() => toggleSlot(s.key)}
+                        className="rounded border-ui-border-decorative text-ui-blue focus:ring-ui-blue"
+                      />
+                      <span>{s.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-ui-text mb-1">Dosage Notation</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 1-0-1, 1 OD"
+                    value={dosageNotation}
+                    onChange={(e) => setDosageNotation(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-ui-border-decorative bg-ui-surface text-ui-text text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-ui-text mb-1">Course Duration (Days)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Leave blank if ongoing"
+                    value={durationDays}
+                    onChange={(e) => setDurationDays(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-ui-border-decorative bg-ui-surface text-ui-text text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-ui-text mb-1">Instructions</label>
+                <input
+                  type="text"
+                  placeholder="e.g. After food with lukewarm water"
+                  value={instructions}
+                  onChange={(e) => setInstructions(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-ui-border-decorative bg-ui-surface text-ui-text text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 border border-ui-border-decorative text-ui-text rounded-lg hover:bg-ui-surface-subtle"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-4 py-2 bg-ui-blue hover:bg-ui-blue-hover text-white rounded-lg font-semibold disabled:opacity-60 shadow-xs"
+                >
+                  {saving ? "Saving…" : "Save Medication"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

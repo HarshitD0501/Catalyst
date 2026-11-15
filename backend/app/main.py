@@ -46,12 +46,15 @@ from .db import SessionLocal, get_db, init_db  # noqa: E402
 from .dosage import parse_dosage  # noqa: E402
 from .extraction import _status  # noqa: E402
 from .graph import build_pipeline  # noqa: E402
-from .models import Appointment, DoseAdherence, Interaction, Medicine, Patient, ReminderLog, ReminderTask, Report  # noqa: E402
+from .models import (  # noqa: E402
+    Appointment, CaregiverLink, DoseAdherence, Interaction, Medicine, Patient,
+    ReminderLog, ReminderTask, Report, _now,
+)
 from .schemas import (  # noqa: E402
-    AppointmentCreateIn, AppointmentOut, AppointmentRescheduleIn,
-    GoogleAuthIn, LoginIn, LoginOut, MedicineOut, PatientOut, RegisterIn, ReminderPrefsIn,
-    ReminderPrefsOut, ReminderTaskOut, ReportOut, RescheduleIn, StopMedicineIn,
-    TelephonyDispatchIn,
+    AppointmentCreateIn, AppointmentOut, AppointmentRescheduleIn, DoseCheckIn,
+    GoogleAuthIn, LoginIn, LoginOut, MedicationCreateIn, MedicationUpdateIn, MedicineOut,
+    PatientOut, RegisterIn, ReminderPrefsIn, ReminderPrefsOut, ReminderTaskOut, ReportOut,
+    RescheduleIn, StopMedicineIn, TelephonyDispatchIn,
 )
 from .seed import seed, seed_interactions  # noqa: E402
 
@@ -472,16 +475,38 @@ def list_reports(
 
 
 @app.get("/api/medicines", response_model=list[MedicineOut])
+@app.get("/api/medications", response_model=list[MedicineOut])
 def list_medicines(
     include_prices: bool = Query(True),
+    patient_id: Optional[str] = Query(None),
     patient: Patient = Depends(current_patient),
     db: Session = Depends(get_db),
 ):
+    target_id = patient.id
+    if patient.role == "caregiver":
+        if patient_id:
+            link = db.query(CaregiverLink).filter(
+                CaregiverLink.caregiver_id == patient.id,
+                CaregiverLink.patient_id == patient_id,
+                CaregiverLink.status == "ACTIVE",
+                CaregiverLink.revoked_at.is_(None),
+            ).first()
+            if not link:
+                raise HTTPException(403, "Not authorized to access records for this patient")
+            target_id = patient_id
+        else:
+            first_link = db.query(CaregiverLink).filter(
+                CaregiverLink.caregiver_id == patient.id,
+                CaregiverLink.status == "ACTIVE",
+                CaregiverLink.revoked_at.is_(None),
+            ).first()
+            target_id = first_link.patient_id if first_link else patient.id
+
     rows = (
         db.query(Medicine)
         .outerjoin(Report, Medicine.report_id == Report.id)
         .filter(
-            Medicine.patient_id == patient.id,
+            Medicine.patient_id == target_id,
             Medicine.status == "active",
             or_(Medicine.report_id.is_(None), Report.confirmed.is_(True)),
         )
@@ -493,6 +518,168 @@ def list_medicines(
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=min(8, len(rows))) as pool:
         return list(pool.map(lambda m: _med_out(m, include_prices=True), rows))
+
+
+@app.post("/api/medicines", response_model=MedicineOut, status_code=201)
+@app.post("/api/medications", response_model=MedicineOut, status_code=201)
+def create_medication(
+    body: MedicationCreateIn,
+    patient: Patient = Depends(current_patient),
+    db: Session = Depends(get_db),
+):
+    target_id = patient.id
+    if patient.role == "caregiver":
+        if not body.patient_id:
+            raise HTTPException(400, "Caregivers must specify patient_id when adding medication")
+        link = db.query(CaregiverLink).filter(
+            CaregiverLink.caregiver_id == patient.id,
+            CaregiverLink.patient_id == body.patient_id,
+            CaregiverLink.status == "ACTIVE",
+            CaregiverLink.revoked_at.is_(None),
+        ).first()
+        if not link:
+            raise HTTPException(403, "Not authorized to manage medications for this patient")
+        if link.role == "VIEWER" or "write_meds" not in (link.permissions or []):
+            raise HTTPException(403, "Viewer role cannot create or modify medications")
+        target_id = body.patient_id
+
+    timing = body.timing
+    notation = body.dosage_notation
+    per_day = 0.0
+
+    if not timing and notation:
+        parsed = parse_dosage(notation)
+        timing = parsed.timings
+        per_day = parsed.per_day
+    elif timing:
+        per_day = float(len(timing))
+    else:
+        timing = ["morning"]
+        per_day = 1.0
+
+    today_str = date.today().isoformat()
+    med = Medicine(
+        patient_id=target_id,
+        brand=body.brand.strip(),
+        salt=body.salt.strip() if body.salt else None,
+        strength=body.strength.strip() if body.strength else None,
+        form=body.form or "tablet",
+        dosage_notation=notation or ("-".join(["1" if s in timing else "0" for s in ["morning", "afternoon", "night"]])),
+        timing=timing,
+        per_day=per_day,
+        prn=body.prn,
+        duration_days=body.duration_days,
+        start_date=body.start_date or today_str,
+        status="active",
+        confidence=1.0,
+        prescriber_name=body.prescriber_name or "Manual Entry",
+        reminders_enabled=True,
+    )
+    db.add(med)
+    db.commit()
+    db.refresh(med)
+
+    wa_svc.sync_today_adherence(db, target_id)
+    return _med_out(med, include_prices=True)
+
+
+@app.put("/api/medicines/{medicine_id}", response_model=MedicineOut)
+@app.put("/api/medications/{medicine_id}", response_model=MedicineOut)
+def update_medication(
+    medicine_id: int,
+    body: MedicationUpdateIn,
+    patient: Patient = Depends(current_patient),
+    db: Session = Depends(get_db),
+):
+    med = db.get(Medicine, medicine_id)
+    if not med:
+        raise HTTPException(404, "Medication not found")
+
+    if patient.role == "caregiver":
+        link = db.query(CaregiverLink).filter(
+            CaregiverLink.caregiver_id == patient.id,
+            CaregiverLink.patient_id == med.patient_id,
+            CaregiverLink.status == "ACTIVE",
+            CaregiverLink.revoked_at.is_(None),
+        ).first()
+        if not link:
+            raise HTTPException(403, "Not authorized to manage medications for this patient")
+        if link.role == "VIEWER" or "write_meds" not in (link.permissions or []):
+            raise HTTPException(403, "Viewer role cannot modify medications")
+    elif med.patient_id != patient.id:
+        raise HTTPException(403, "Not authorized to modify this medication")
+
+    if body.brand is not None:
+        med.brand = body.brand.strip()
+    if body.salt is not None:
+        med.salt = body.salt.strip() if body.salt else None
+    if body.strength is not None:
+        med.strength = body.strength.strip() if body.strength else None
+    if body.form is not None:
+        med.form = body.form
+    if body.dosage_notation is not None:
+        med.dosage_notation = body.dosage_notation
+    if body.timing is not None:
+        med.timing = body.timing
+        med.per_day = float(len(body.timing))
+    if body.duration_days is not None:
+        med.duration_days = body.duration_days
+    if body.prn is not None:
+        med.prn = body.prn
+    if body.prescriber_name is not None:
+        med.prescriber_name = body.prescriber_name
+    if body.status is not None:
+        med.status = body.status
+        if body.status == "stopped":
+            med.stopped_at = _now()
+            med.stopped_reason = "Updated via medication manager"
+
+    db.commit()
+    db.refresh(med)
+    wa_svc.sync_today_adherence(db, med.patient_id)
+    return _med_out(med, include_prices=True)
+
+
+@app.delete("/api/medicines/{medicine_id}")
+@app.delete("/api/medications/{medicine_id}")
+def delete_medication(
+    medicine_id: int,
+    patient: Patient = Depends(current_patient),
+    db: Session = Depends(get_db),
+):
+    med = db.get(Medicine, medicine_id)
+    if not med:
+        raise HTTPException(404, "Medication not found")
+
+    if patient.role == "caregiver":
+        link = db.query(CaregiverLink).filter(
+            CaregiverLink.caregiver_id == patient.id,
+            CaregiverLink.patient_id == med.patient_id,
+            CaregiverLink.status == "ACTIVE",
+            CaregiverLink.revoked_at.is_(None),
+        ).first()
+        if not link:
+            raise HTTPException(403, "Not authorized to manage medications for this patient")
+        if link.role == "VIEWER" or "write_meds" not in (link.permissions or []):
+            raise HTTPException(403, "Viewer role cannot discontinue medications")
+    elif med.patient_id != patient.id:
+        raise HTTPException(403, "Not authorized to modify this medication")
+
+    med.status = "stopped"
+    med.stopped_at = _now()
+    med.stopped_reason = "Discontinued via medication manager"
+
+    today_str = date.today().isoformat()
+    pending_doses = db.query(DoseAdherence).filter(
+        DoseAdherence.medicine_id == med.id,
+        DoseAdherence.dose_date == today_str,
+        DoseAdherence.status == "pending",
+    ).all()
+    for pd in pending_doses:
+        pd.status = "cancelled"
+
+    db.commit()
+    return {"status": "stopped", "medicine_id": med.id, "brand": med.brand}
 
 
 @app.get("/api/interactions")
@@ -762,11 +949,32 @@ async def simulate_whatsapp_reply(
 
 @app.get("/api/adherence/today")
 def get_today_adherence(
+    patient_id: Optional[str] = Query(None),
     patient: Patient = Depends(current_patient),
     db: Session = Depends(get_db),
 ):
     """Return all scheduled doses and adherence states for today."""
-    adherences = wa_svc.sync_today_adherence(db, patient.id)
+    target_id = patient.id
+    if patient.role == "caregiver":
+        if patient_id:
+            link = db.query(CaregiverLink).filter(
+                CaregiverLink.caregiver_id == patient.id,
+                CaregiverLink.patient_id == patient_id,
+                CaregiverLink.status == "ACTIVE",
+                CaregiverLink.revoked_at.is_(None),
+            ).first()
+            if not link:
+                raise HTTPException(403, "Not authorized to access adherence for this patient")
+            target_id = patient_id
+        else:
+            first_link = db.query(CaregiverLink).filter(
+                CaregiverLink.caregiver_id == patient.id,
+                CaregiverLink.status == "ACTIVE",
+                CaregiverLink.revoked_at.is_(None),
+            ).first()
+            target_id = first_link.patient_id if first_link else patient.id
+
+    adherences = wa_svc.sync_today_adherence(db, target_id)
     return [
         {
             "id": a.id,
@@ -777,21 +985,111 @@ def get_today_adherence(
             "scheduled_time": a.scheduled_time,
             "status": a.status,
             "confirmed_at": a.confirmed_at.isoformat() if a.confirmed_at else None,
+            "logged_by_user_id": a.logged_by_user_id,
+            "actor_role": a.actor_role,
             "notes": a.notes,
         }
         for a in adherences
     ]
 
 
+@app.post("/api/adherence/{adherence_id}/check-in")
+def check_in_dose_adherence(
+    adherence_id: int,
+    body: DoseCheckIn,
+    auth_ctx: tuple[Patient, Patient | None] = Depends(resolve_actor),
+    db: Session = Depends(get_db),
+):
+    """Log manual dose adherence (taken / missed) with actor attribution and alert triggers."""
+    actor, _ = auth_ctx
+    adh = db.get(DoseAdherence, adherence_id)
+    if not adh:
+        raise HTTPException(404, "Scheduled dose adherence record not found")
+
+    actor_role = "patient"
+    if (actor.role or "patient") == "caregiver":
+        link = db.query(CaregiverLink).filter(
+            CaregiverLink.caregiver_id == actor.id,
+            CaregiverLink.patient_id == adh.patient_id,
+            CaregiverLink.status == "ACTIVE",
+            CaregiverLink.revoked_at.is_(None),
+        ).first()
+        if not link:
+            raise HTTPException(403, "Not authorized to record adherence for this patient")
+        if link.role == "VIEWER" or "write_adherence" not in (link.permissions or []):
+            raise HTTPException(403, "Viewer role cannot record dose adherence")
+        actor_role = link.role or "CARE_MANAGER"
+    elif adh.patient_id != actor.id:
+        raise HTTPException(403, "Not authorized to record adherence for this patient")
+
+    confirmed_dt = _now()
+    if body.client_timestamp:
+        try:
+            if isinstance(body.client_timestamp, datetime):
+                confirmed_dt = body.client_timestamp
+            else:
+                confirmed_dt = datetime.fromisoformat(str(body.client_timestamp).replace("Z", "+00:00"))
+        except Exception:
+            confirmed_dt = _now()
+
+    adh.status = body.status
+    adh.confirmed_at = confirmed_dt
+    adh.logged_by_user_id = actor.id
+    adh.actor_role = actor_role
+    if body.notes:
+        adh.notes = body.notes.strip()
+
+    db.commit()
+    db.refresh(adh)
+
+    dispatched_alerts = []
+    if body.status == "missed":
+        dispatched_alerts = scheduler_svc.schedule_missed_dose_alerts(db, adh)
+
+    today_adherences = db.query(DoseAdherence).filter(
+        DoseAdherence.patient_id == adh.patient_id,
+        DoseAdherence.dose_date == adh.dose_date,
+    ).all()
+    total_today = len(today_adherences)
+    taken_today = sum(1 for a in today_adherences if a.status == "taken")
+    missed_today = sum(1 for a in today_adherences if a.status == "missed")
+    pending_today = sum(1 for a in today_adherences if a.status == "pending")
+    adherence_pct = round((taken_today / total_today) * 100) if total_today > 0 else 100
+
+    return {
+        "status": "updated",
+        "adherence": {
+            "id": adh.id,
+            "medicine_id": adh.medicine_id,
+            "brand": adh.medicine.brand if adh.medicine else "",
+            "slot": adh.slot,
+            "status": adh.status,
+            "confirmed_at": adh.confirmed_at.isoformat() if adh.confirmed_at else None,
+            "logged_by_user_id": adh.logged_by_user_id,
+            "actor_role": adh.actor_role,
+            "notes": adh.notes,
+        },
+        "stats": {
+            "total_today": total_today,
+            "taken_today": taken_today,
+            "missed_today": missed_today,
+            "pending_today": pending_today,
+            "adherence_rate_today_pct": adherence_pct,
+        },
+        "alerts_queued": len(dispatched_alerts),
+    }
+
+
 @app.get("/api/reminders/preferences", response_model=ReminderPrefsOut)
 def get_reminder_preferences(
     patient: Patient = Depends(current_patient),
 ):
-    """Get the patient's automated reminder settings (WhatsApp & Call)."""
+    """Get the patient's automated reminder settings (WhatsApp, Email & Call)."""
     return ReminderPrefsOut(
         auto_reminders_enabled=patient.auto_reminders_enabled is not False,
         whatsapp_reminders_enabled=patient.whatsapp_reminders_enabled is not False,
         call_reminders_enabled=bool(patient.call_reminders_enabled),
+        email_reminders_enabled=patient.email_reminders_enabled is not False,
         reminder_time_morning=getattr(patient, "reminder_time_morning", "08:00 AM") or "08:00 AM",
         reminder_time_afternoon=getattr(patient, "reminder_time_afternoon", "01:00 PM") or "01:00 PM",
         reminder_time_night=getattr(patient, "reminder_time_night", "08:00 PM") or "08:00 PM",
@@ -814,6 +1112,8 @@ def update_reminder_preferences(
         p.whatsapp_reminders_enabled = body.whatsapp_reminders_enabled
     if body.call_reminders_enabled is not None:
         p.call_reminders_enabled = body.call_reminders_enabled
+    if body.email_reminders_enabled is not None:
+        p.email_reminders_enabled = body.email_reminders_enabled
     if body.reminder_time_morning is not None:
         p.reminder_time_morning = body.reminder_time_morning
     if body.reminder_time_afternoon is not None:
@@ -827,10 +1127,27 @@ def update_reminder_preferences(
         auto_reminders_enabled=p.auto_reminders_enabled is not False,
         whatsapp_reminders_enabled=p.whatsapp_reminders_enabled is not False,
         call_reminders_enabled=bool(p.call_reminders_enabled),
+        email_reminders_enabled=p.email_reminders_enabled is not False,
         reminder_time_morning=p.reminder_time_morning or "08:00 AM",
         reminder_time_afternoon=p.reminder_time_afternoon or "01:00 PM",
         reminder_time_night=p.reminder_time_night or "08:00 PM",
     )
+
+
+@app.post("/api/reminders/trigger-email-check")
+async def trigger_email_reminders_check(
+    patient: Patient = Depends(current_patient),
+    db: Session = Depends(get_db),
+):
+    """Queue and claim due email reminder tasks immediately for testing and validation."""
+    tasks = scheduler_svc.schedule_dose_email_reminders(db, patient.id)
+    claimed = scheduler_svc.claim_due_tasks(db, batch_size=20)
+    dispatched = []
+    for t in claimed:
+        if t.channel == "email":
+            res = await scheduler_svc.process_reminder_task(db, t)
+            dispatched.append(res)
+    return {"queued": len(tasks), "claimed": len(claimed), "dispatched": dispatched}
 
 
 @app.post("/api/medicines/{medicine_id}/stop")
