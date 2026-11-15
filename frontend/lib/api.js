@@ -361,3 +361,30 @@ export async function getVoiceToken() {
   throw new Error("Voice service is not ready. Please verify LIVEKIT_URL / LIVEKIT_API_KEY in .env");
 }
 
+export async function createCareCircleInvitation(data) {
+  return api("/care-circle/invitations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function redeemCareCirclePasscode(email, passcode) {
+  return api("/care-circle/redeem", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ recipient_email: email, passcode }),
+  });
+}
+
+export async function getCareCircleMembers() {
+  return api("/care-circle/members");
+}
+
+export async function revokeCareCircleMember(linkId) {
+  return api(`/care-circle/members/${linkId}/revoke`, {
+    method: "POST",
+  });
+}
+
+

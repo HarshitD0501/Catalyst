@@ -101,8 +101,15 @@ class IndexRecoveryTests(unittest.TestCase):
                                    "init_db(); init_db(); engine.dispose()", fresh)
         self.assertEqual(result.returncode, 0, result.stderr)
         with closing(sqlite3.connect(fresh)) as c:
+            from alembic.config import Config
+            from alembic.script import ScriptDirectory
+            backend_path = Path(__file__).resolve().parent.parent
+            alembic_cfg = Config(str(backend_path / "alembic.ini"))
+            alembic_cfg.set_main_option("script_location", str(backend_path / "alembic"))
+            script = ScriptDirectory.from_config(alembic_cfg)
+            expected_head = script.get_current_head()
             self.assertEqual(c.execute("SELECT version_num FROM alembic_version").fetchone(),
-                             ("8d716ab6add5",))
+                             (expected_head,))
             patient_cols = [r[1] for r in c.execute("PRAGMA table_info(patients)")]
             self.assertIn("google_sub", patient_cols)
             self.assertIn("auto_reminders_enabled", patient_cols)

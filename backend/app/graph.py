@@ -16,6 +16,18 @@ so the graph adds structure, not a second implementation.
 """
 from __future__ import annotations
 
+# Compatibility guard for langchain-core debug flag
+try:
+    import langchain
+    if not hasattr(langchain, "debug"):
+        langchain.debug = False
+    if not hasattr(langchain, "verbose"):
+        langchain.verbose = False
+    if not hasattr(langchain, "llm_cache"):
+        langchain.llm_cache = None
+except ImportError:
+    pass
+
 import base64
 from datetime import date
 from typing import Optional, TypedDict

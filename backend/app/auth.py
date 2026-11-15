@@ -134,16 +134,47 @@ def authenticate(db: Session, identifier: str, password: str) -> Patient | None:
 
 
 def _linked_patient_ids(db: Session, caregiver_id: str) -> list[str]:
-    """Linked patient ids in link order (matches /api/caregiver/patients cards)."""
+    """Linked patient ids in link order (matches /api/caregiver/patients cards).
+    Enforces active, non-revoked links only (REQ-02, REQ-03).
+    """
     from .models import CaregiverLink  # local import: avoid circular module load
 
     rows = (
         db.query(CaregiverLink.patient_id)
-        .filter(CaregiverLink.caregiver_id == caregiver_id)
+        .filter(
+            CaregiverLink.caregiver_id == caregiver_id,
+            CaregiverLink.status == "ACTIVE",
+            CaregiverLink.revoked_at.is_(None),
+        )
         .order_by(CaregiverLink.id.asc())
         .all()
     )
     return [r[0] for r in rows]
+
+
+def check_permission(actor: Patient, patient: Patient, required_permission: str, db: Session) -> bool:
+    """Check if actor has required_permission on patient.
+    Owner patients always have all permissions.
+    Caregivers must hold the permission in their active CaregiverLink.
+    """
+    if actor.id == patient.id:
+        return True
+    from .models import CaregiverLink
+    link = db.query(CaregiverLink).filter(
+        CaregiverLink.caregiver_id == actor.id,
+        CaregiverLink.patient_id == patient.id,
+        CaregiverLink.status == "ACTIVE",
+        CaregiverLink.revoked_at.is_(None)
+    ).first()
+    if not link:
+        return False
+    import json
+    try:
+        perms = json.loads(link.permissions or '[]')
+    except Exception:
+        perms = []
+    return required_permission in perms or "*" in perms
+
 
 
 def resolve_actor(

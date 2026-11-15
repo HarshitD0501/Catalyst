@@ -250,5 +250,34 @@ class CaregiverLink(Base):
     caregiver_id = Column(String, ForeignKey("patients.id"), index=True)
     patient_id = Column(String, ForeignKey("patients.id"), index=True)
     relation = Column(String)  # display only: "father", "daughter", "friend"
+    role = Column(String, default="CARE_MANAGER")  # "CARE_MANAGER" or "VIEWER"
+    permissions = Column(String, default='["read", "write_meds", "write_adherence", "write_appointments"]')
+    status = Column(String, default="ACTIVE")  # "ACTIVE" or "REVOKED"
     consented_at = Column(DateTime, default=_now)
+    revoked_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=_now)
+
+
+class Invitation(Base):
+    """Patient-authorized passcode invitation for family/caregiver onboarding (REQ-02, REQ-03).
+    Passcode is hashed using HMAC-SHA256 with a per-invitation salt and server pepper.
+    Supports single-use atomic redemption, 10-minute expiry, and max 5 attempts lockout.
+    """
+    __tablename__ = "invitations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    patient_id = Column(String, ForeignKey("patients.id"), index=True, nullable=False)
+    recipient_email = Column(String, index=True, nullable=False)
+    relation = Column(String, default="Family")  # "Daughter", "Son", "Nurse", "Spouse"
+    role = Column(String, default="CARE_MANAGER")  # "CARE_MANAGER" or "VIEWER"
+    permissions = Column(String, default='["read", "write_meds", "write_adherence", "write_appointments"]')
+    passcode_hash = Column(String(64), nullable=False)
+    passcode_salt = Column(String(32), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    attempt_count = Column(Integer, default=0)
+    max_attempts = Column(Integer, default=5)
+    status = Column(String, default="PENDING")  # PENDING, REDEEMED, EXPIRED, LOCKED, REVOKED
+    created_at = Column(DateTime, default=_now)
+    redeemed_at = Column(DateTime, nullable=True)
+    redeemed_by_id = Column(String, ForeignKey("patients.id"), nullable=True)
+

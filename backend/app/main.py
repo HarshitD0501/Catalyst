@@ -37,6 +37,7 @@ from . import summary as summary_svc  # noqa: E402
 from . import telephony as telephony_svc  # noqa: E402
 from . import whatsapp as wa_svc  # noqa: E402
 from . import caregiver as caregiver_svc  # noqa: E402
+from . import care_circle as care_circle_svc  # noqa: E402
 from . import scheduler as scheduler_svc  # noqa: E402
 from .v1_router import router as v1_router  # noqa: E402
 from .auth import authenticate, current_patient, hash_password, make_token, resolve_actor  # noqa: E402
@@ -125,6 +126,7 @@ app.add_middleware(
 )
 
 app.include_router(caregiver_svc.router)
+app.include_router(care_circle_svc.router, prefix="/api/care-circle", tags=["Care Circle"])
 app.include_router(v1_router)
 
 

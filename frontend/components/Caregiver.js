@@ -25,6 +25,7 @@ import {
   api,
   setActivePatientId,
   getActivePatientId,
+  redeemCareCirclePasscode,
 } from "@/lib/api";
 import { fetchWithResourceCache } from "@/lib/resourceCache";
 import {
@@ -51,6 +52,7 @@ import {
   Menu,
   X,
   RefreshCw,
+  KeyRound,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -84,6 +86,81 @@ function dueTone(days) {
 
 // --- Family card grid -------------------------------------------------------
 
+function RedeemPasscodeCard({ caregiver, onSuccess }) {
+  const [email, setEmail] = useState(caregiver?.email || "");
+  const [passcode, setPasscode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
+
+  async function handleRedeem(e) {
+    e.preventDefault();
+    if (!passcode || !email) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await redeemCareCirclePasscode(email.trim(), passcode.trim());
+      setSuccessMsg(res.message || "Access granted! Linked to patient.");
+      setPasscode("");
+      if (onSuccess) setTimeout(() => onSuccess(res.patient_id), 1000);
+    } catch (err) {
+      setError(err.message || "Failed to redeem passcode.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div style={{ padding: "1.25rem", borderRadius: "1rem", border: "1px solid var(--border, #e2e8f0)", background: "#ffffff", marginBottom: "1.5rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+        <KeyRound size={18} style={{ color: "var(--accent, #0f172a)" }} />
+        <h3 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0 }}>Redeem Care Circle Passcode</h3>
+      </div>
+      <p style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: "1rem" }}>
+        Received an 8-digit single-use passcode from a family member? Enter your email and passcode to securely access their health profile.
+      </p>
+
+      {error && (
+        <div style={{ padding: "0.6rem 0.85rem", marginBottom: "0.75rem", borderRadius: "0.5rem", background: "#fef2f2", color: "#b91c1c", fontSize: "0.8rem" }}>
+          {error}
+        </div>
+      )}
+      {successMsg && (
+        <div style={{ padding: "0.6rem 0.85rem", marginBottom: "0.75rem", borderRadius: "0.5rem", background: "#f0fdf4", color: "#15803d", fontSize: "0.8rem", fontWeight: 600 }}>
+          {successMsg}
+        </div>
+      )}
+
+      <form onSubmit={handleRedeem} style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
+        <input
+          type="email"
+          required
+          placeholder="Your registered email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ flex: "1 1 200px", padding: "0.5rem 0.85rem", borderRadius: "0.5rem", border: "1px solid #cbd5e1", fontSize: "0.85rem" }}
+        />
+        <input
+          type="text"
+          required
+          maxLength={8}
+          placeholder="8-digit code"
+          value={passcode}
+          onChange={(e) => setPasscode(e.target.value.replace(/\D/g, ""))}
+          style={{ width: "130px", padding: "0.5rem 0.85rem", borderRadius: "0.5rem", border: "1px solid #cbd5e1", fontSize: "0.85rem", fontFamily: "monospace", textAlign: "center", letterSpacing: "2px" }}
+        />
+        <button
+          type="submit"
+          disabled={loading || passcode.length !== 8}
+          style={{ padding: "0.5rem 1.25rem", borderRadius: "0.5rem", background: "#0f172a", color: "#ffffff", fontSize: "0.85rem", fontWeight: 600, border: "none", cursor: "pointer", opacity: (loading || passcode.length !== 8) ? 0.6 : 1 }}
+        >
+          {loading ? "Verifying…" : "Redeem"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function FamilyGrid({ caregiver, cards, loading, err, onOpenPatient, onRetry }) {
   if (err) return <div className="cg-error"><Note tone="err">{err}</Note><button type="button" className="cg-retry" onClick={onRetry}><RefreshCw size={16} /> Try again</button></div>;
   if (loading || !cards) return <Loader label="Loading your family…" />;
@@ -105,6 +182,8 @@ function FamilyGrid({ caregiver, cards, loading, err, onOpenPatient, onRetry }) 
         </div>
       </div>
 
+      <RedeemPasscodeCard caregiver={caregiver} onSuccess={(pId) => { if (onOpenPatient && pId) onOpenPatient(pId); else if (onRetry) onRetry(); }} />
+
       {cards.length > 0 && <div className="cg-overview-stats" aria-label="Family summary">
         <div><strong>{cards.length}</strong><span>Linked family members</span></div>
         <div><strong>{medicines}</strong><span>Active medicines</span></div>
@@ -115,7 +194,7 @@ function FamilyGrid({ caregiver, cards, loading, err, onOpenPatient, onRetry }) 
         <div className="cg-empty">
           <Users size={32} aria-hidden="true" />
           <h3>No family members linked yet</h3>
-          <p>Ask a patient to link your registered contact, <strong>{caregiver.phone || caregiver.email}</strong>. Their information will appear here once access is granted.</p>
+          <p>Ask a patient for an 8-digit Care Circle passcode, or enter it in the form above to link their profile.</p>
         </div>
       ) : (
         <div className="cg-cards">

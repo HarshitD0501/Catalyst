@@ -45,6 +45,11 @@ const StoresView = dynamic(() => import("@/components/views/StoresView"), {
   ssr: false,
 });
 
+const CareCircleView = dynamic(() => import("@/components/CareCircleView"), {
+  loading: () => <ModuleLoadingFallback title="Loading Care Circle…" sub="Retrieving family members and permissions…" />,
+  ssr: false,
+});
+
 const HistoryView = dynamic(() => import("@/components/views/HistoryView"), {
   loading: () => <ModuleLoadingFallback title="Loading Saved Records…" sub="Accessing your device-local prescription history…" />,
   ssr: false,
@@ -81,6 +86,15 @@ const SECTIONS = [
     Comp: Summary,
     title: "Health Overview",
     sub: "Your conditions, daily dose schedule, and next doctor review at a glance.",
+  },
+  {
+    key: "care_circle",
+    label: "Care Circle",
+    Icon: Users,
+    Comp: ({ goto, patient }) => <CareCircleView patient={patient} />,
+    title: "Family Care Circle & Passcodes",
+    sub: "Manage trusted family members and caregivers with secure passcode access and role-based permissions.",
+    isTool: true,
   },
   {
     key: "assistant",
