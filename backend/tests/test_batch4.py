@@ -14,6 +14,7 @@ import os
 import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+import pytest
 
 # Bootstrap backend and root import path
 backend_dir = str(Path(__file__).resolve().parent.parent)
@@ -425,6 +426,10 @@ def test_err_029_reschedule_tool_truthful_wording():
     """ERR-029: Voice reschedule tool does not claim false clinic notification."""
     import subprocess
 
+    agent_dir = Path(root_dir) / "agent"
+    if not agent_dir.exists() or not (agent_dir / "voice.py").exists():
+        pytest.skip("Optional /agent voice module is not present in this repository")
+
     agent_python = Path(root_dir) / "agent" / ".venv" / "Scripts" / "python.exe"
     if not agent_python.exists():
         agent_python = Path(sys.executable)
@@ -444,7 +449,7 @@ def test_err_029_reschedule_tool_truthful_wording():
         [str(agent_python), "-c", script],
         capture_output=True,
         text=True,
-        cwd=str(Path(root_dir) / "agent"),
+        cwd=str(agent_dir),
     )
     assert "VERIFIED_TRUTHFUL" in proc.stdout, (
         f"ERR-029 verification failed:\nSTDOUT: {proc.stdout}\nSTDERR: {proc.stderr}"
