@@ -41,16 +41,16 @@ import {
 // ---- Verified FAQs (WAI-ARIA Accordion) ----
 const FAQS = [
   {
-    q: "What is Catalyst and who is it designed for?",
-    a: "Catalyst is an intelligent elderly care, medication scheduling, and family coordination platform. It is designed for seniors managing multi-condition prescriptions and family caregivers who need real-time adherence tracking, shared profiles, and proactive multi-channel reminders.",
+    q: "What is CareSetu and who is it designed for?",
+    a: "CareSetu (meaning 'Care Bridge') is an intelligent elderly care, medication scheduling, and family coordination platform. It is designed for seniors managing multi-condition prescriptions and family caregivers who need real-time adherence tracking, shared profiles, and proactive multi-channel reminders.",
   },
   {
     q: "How does the safety interaction check work?",
-    a: "Catalyst cross-checks active medicine salts across your uploaded prescriptions against clinical interaction rules. It is a decision-support guide, not an exhaustive diagnostic system. A missing alert does not guarantee safety, and any warnings should be reviewed with your doctor.",
+    a: "CareSetu cross-checks active medicine salts across your uploaded prescriptions against clinical interaction rules. It is a decision-support guide, not an exhaustive diagnostic system. A missing alert does not guarantee safety, and any warnings should be reviewed with your doctor.",
   },
   {
-    q: "Does Catalyst prescribe medicines or advise substitutions?",
-    a: "No. Catalyst is strictly non-clinical. We never diagnose conditions, prescribe medications, or recommend brand switches without doctor oversight. All information is provided for adherence, safety transparency, and discussion with your doctor or pharmacist.",
+    q: "Does CareSetu prescribe medicines or advise substitutions?",
+    a: "No. CareSetu is strictly non-clinical. We never diagnose conditions, prescribe medications, or recommend brand switches without doctor oversight. All information is provided for adherence, safety transparency, and discussion with your doctor or pharmacist.",
   },
   {
     q: "How do caregivers access a patient's records?",
@@ -109,31 +109,31 @@ export default function Landing({
         {/* ==============================================================
             SECTION 1: HERO (#home)
             ============================================================== */}
-        <header id="home" className="relative py-14 sm:py-16 lg:py-20 overflow-hidden">
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-10 lg:gap-12 items-start relative z-10">
+        <header id="home" className="relative py-6 sm:py-8 lg:py-10 overflow-hidden">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-8 lg:gap-10 items-center relative z-10">
           {/* Left: Verified Value Proposition (5/12 on lg) */}
-          <div className="lg:col-span-5 flex flex-col justify-start items-start space-y-6 pt-2">
+          <div className="lg:col-span-5 flex flex-col justify-start items-start space-y-4 pt-1">
             {/* Context Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-ui-surface border border-ui-border-decorative text-ui-text text-xs font-semibold shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ui-surface border border-ui-border-decorative text-ui-text text-xs font-semibold shadow-sm">
               <span className="w-2 h-2 rounded-full bg-ui-blue" aria-hidden="true" />
               <span>Elderly Care & Family Coordination Bridge</span>
             </div>
 
             {/* Concise, Balanced H1 */}
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-semibold text-ui-text leading-[1.15] tracking-tight">
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-[40px] font-semibold text-ui-text leading-[1.15] tracking-tight">
               Smart elderly care, connected families, zero missed doses.
             </h1>
 
             {/* Support Copy with Medical Disclaimer */}
-            <p className="text-base sm:text-lg text-ui-text-secondary font-sans leading-relaxed">
-              Catalyst bridges the gap between aging parents, loving families, and essential healthcare. Automated medication schedules, passcode-protected Care Circles, bilingual voice check-ins, and proactive email & doctor appointment reminders.
+            <p className="text-sm sm:text-base text-ui-text-secondary font-sans leading-relaxed">
+              CareSetu bridges the gap between aging parents, loving families, and essential healthcare. Automated medication schedules, passcode-protected Care Circles, bilingual voice check-ins, and proactive email & doctor appointment reminders.
             </p>
 
             {/* Call to Actions */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-2 w-full sm:w-auto">
+            <div className="flex flex-wrap items-center gap-3 pt-1 w-full sm:w-auto">
               <a
                 href="#product"
-                className="w-full sm:w-auto inline-flex items-center justify-center min-h-[44px] px-6 py-2.5 bg-ui-blue hover:bg-ui-blue-hover text-white rounded-lg text-sm font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue focus-visible:ring-offset-2"
+                className="w-full sm:w-auto inline-flex items-center justify-center min-h-[42px] px-5 py-2 bg-ui-blue hover:bg-ui-blue-hover text-white rounded-lg text-sm font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue focus-visible:ring-offset-2"
               >
                 <span>Explore the product</span>
                 <ChevronRight className="w-4 h-4 ml-1.5" aria-hidden="true" />
@@ -141,31 +141,31 @@ export default function Landing({
               <button
                 type="button"
                 onClick={handleAuthAction}
-                className="w-full sm:w-auto inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 bg-ui-surface hover:bg-ui-surface-subtle text-ui-text border border-ui-border-decorative hover:border-ui-control-border rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue focus-visible:ring-offset-2"
+                className="w-full sm:w-auto inline-flex items-center justify-center min-h-[42px] px-5 py-2 bg-ui-surface hover:bg-ui-surface-subtle text-ui-text border border-ui-border-decorative hover:border-ui-control-border rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue focus-visible:ring-offset-2"
               >
                 {patient ? "Open Workspace" : "Sign in"}
               </button>
             </div>
 
             {/* Credibility micro-points */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-xs font-medium text-ui-text-secondary border-t border-ui-border-decorative/60 w-full">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 pt-2 text-xs font-medium text-ui-text-secondary border-t border-ui-border-decorative/60 w-full">
               <span className="flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-ui-success" aria-hidden="true" /> Non-clinical assistance
+                <Check className="w-3.5 h-3.5 text-ui-success" aria-hidden="true" /> Non-clinical assistance
               </span>
               <span className="flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-ui-success" aria-hidden="true" /> Verified Jan Aushadhi catalogue
+                <Check className="w-3.5 h-3.5 text-ui-success" aria-hidden="true" /> Verified Jan Aushadhi catalogue
               </span>
               <span className="flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-ui-success" aria-hidden="true" /> Patient-consented access
+                <Check className="w-3.5 h-3.5 text-ui-success" aria-hidden="true" /> Patient-consented access
               </span>
             </div>
           </div>
 
-          {/* Right: Catalyst Telemetry & Companion Card (7/12 on lg) */}
+          {/* Right: CareSetu Telemetry & Companion Card (7/12 on lg) */}
           <div className="lg:col-span-7 relative flex flex-col items-center justify-center lg:items-end w-full">
-            <CatalystCompanionCard onLaunchDemo={onOpenAuth || (() => onSelectDemo("ramesh"))} />
-            <p className="mt-2.5 text-[11px] font-medium text-ui-text-secondary text-center lg:text-right" aria-label="Illustration notice">
-              * Live interactive preview of Catalyst senior voice check-in, medication adherence, and Care Circle synchronization.
+            <CareSetuCompanionCard onLaunchDemo={onOpenAuth || (() => onSelectDemo("ramesh"))} />
+            <p className="mt-1.5 text-[11px] font-medium text-ui-text-secondary text-center lg:text-right" aria-label="Illustration notice">
+              * Live interactive preview of CareSetu senior voice check-in, medication adherence, and Care Circle synchronization.
             </p>
           </div>
         </div>
@@ -250,7 +250,7 @@ export default function Landing({
                 From paper slips to a coordinated family schedule.
               </h2>
               <p className="text-sm text-ui-text-secondary leading-relaxed">
-                Chronic care often involves multiple specialists with separate paper prescriptions. Catalyst organizes them into one unified family schedule without altering your doctor's clinical decisions.
+                Chronic care often involves multiple specialists with separate paper prescriptions. CareSetu organizes them into one unified family schedule without altering your doctor's clinical decisions.
               </p>
               <div className="pt-2">
                 <a
@@ -470,13 +470,13 @@ export default function Landing({
             <div className="space-y-4">
               <Link href="/" className="inline-block">
                 <img
-                  src="/catalyst-logo.png"
-                  alt="Catalyst"
+                  src="/caresetu-logo.png"
+                  alt="CareSetu"
                   className="h-9 w-auto object-contain"
                 />
               </Link>
               <p className="text-xs text-ui-text-secondary leading-relaxed">
-                Catalyst — Intelligent Elderly Care, Medication Scheduling & Family Coordination Platform. Not a substitute for licensed medical consultation.
+                CareSetu — Intelligent Elderly Care, Medication Scheduling & Family Coordination Platform. Not a substitute for licensed medical consultation.
               </p>
             </div>
 
@@ -565,7 +565,7 @@ export default function Landing({
 
           <div className="mt-12 pt-6 border-t border-ui-border-decorative/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ui-text-secondary">
             <span>
-              © 2026 Catalyst. All rights reserved. Always consult your registered medical practitioner.
+              © 2026 CareSetu. All rights reserved. Always consult your registered medical practitioner.
             </span>
             <span className="text-[11px]">
               PMBJP & NPPA Reference Data Aligned
@@ -577,8 +577,8 @@ export default function Landing({
   );
 }
 
-// ---- Sub-Component: Catalyst Interactive Senior Voice & Care Circle Card ----
-function CatalystCompanionCard({ onLaunchDemo }) {
+// ---- Sub-Component: CareSetu Interactive Senior Voice & Care Circle Card ----
+function CareSetuCompanionCard({ onLaunchDemo }) {
   const [activeTab, setActiveTab] = useState("voice"); // 'voice' | 'circle'
   const [isPlaying, setIsPlaying] = useState(true);
   const [doseStatus, setDoseStatus] = useState("pending"); // 'pending' | 'taken' | 'snoozed' | 'missed'
@@ -652,65 +652,65 @@ function CatalystCompanionCard({ onLaunchDemo }) {
   return (
     <div
       role="region"
-      aria-label="Catalyst Live Telemetry and Care Circle Companion"
-      className="w-full max-w-xl bg-ui-surface border border-ui-border-decorative rounded-2xl shadow-[0_16px_40px_-10px_rgba(23,43,77,0.12),0_2px_8px_rgba(23,43,77,0.04)] relative z-10 transition-all duration-300 hover:shadow-[0_20px_50px_-8px_rgba(23,43,77,0.18)] flex flex-col overflow-hidden"
+      aria-label="CareSetu Live Telemetry and Care Circle Companion"
+      className="w-full max-w-lg bg-ui-surface border border-ui-border-decorative rounded-xl shadow-[0_12px_32px_-8px_rgba(23,43,77,0.12),0_2px_6px_rgba(23,43,77,0.04)] relative z-10 transition-all duration-300 hover:shadow-[0_16px_40px_-6px_rgba(23,43,77,0.16)] flex flex-col overflow-hidden"
     >
       {/* Decorative ambient top glow */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ui-blue via-amber-400 to-ui-blue" />
 
       {/* Card Header: Live Telemetry Indicator + Segmented Tab Switcher */}
-      <div className="p-4 sm:p-5 pb-3 border-b border-ui-border-decorative/70 bg-ui-canvas/40 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2.5 w-2.5">
+      <div className="px-3.5 py-2 border-b border-ui-border-decorative/70 bg-ui-canvas/40 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
           </span>
-          <span className="text-[11px] font-bold tracking-wider text-ui-text uppercase flex items-center gap-1.5 font-mono">
-            <Radio size={13} className="text-emerald-600" aria-hidden="true" />
-            Live Adherence Stream
+          <span className="text-[10px] font-bold tracking-wider text-ui-text uppercase flex items-center gap-1 font-mono">
+            <Radio size={11} className="text-emerald-600" aria-hidden="true" />
+            Live Adherence
           </span>
-          <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-full">
-            Senior Mode Active
+          <span className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-full">
+            Senior Mode
           </span>
         </div>
 
         {/* Segmented View Switcher */}
-        <div className="inline-flex items-center p-1 bg-ui-canvas border border-ui-border-decorative rounded-xl text-xs font-semibold">
+        <div className="inline-flex items-center p-0.5 bg-ui-canvas border border-ui-border-decorative rounded-lg text-xs font-semibold">
           <button
             type="button"
             onClick={() => setActiveTab("voice")}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 text-[11px] ${
               activeTab === "voice"
                 ? "bg-ui-surface text-ui-blue shadow-sm border border-ui-border-decorative/60 font-bold"
                 : "text-ui-text-secondary hover:text-ui-text"
             }`}
           >
-            <PhoneCall size={12} className={activeTab === "voice" ? "text-ui-blue" : "text-ui-text-secondary"} />
+            <PhoneCall size={11} className={activeTab === "voice" ? "text-ui-blue" : "text-ui-text-secondary"} />
             <span>Senior Voice</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("circle")}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 text-[11px] ${
               activeTab === "circle"
                 ? "bg-ui-surface text-ui-blue shadow-sm border border-ui-border-decorative/60 font-bold"
                 : "text-ui-text-secondary hover:text-ui-text"
             }`}
           >
-            <Users size={12} className={activeTab === "circle" ? "text-ui-blue" : "text-ui-text-secondary"} />
+            <Users size={11} className={activeTab === "circle" ? "text-ui-blue" : "text-ui-text-secondary"} />
             <span>Care Circle</span>
           </button>
         </div>
       </div>
 
       {/* Main Body */}
-      <div className="p-5 sm:p-6 space-y-4">
+      <div className="p-3.5 space-y-2">
         {/* Dynamic Toast Notification for live actions */}
         {toast && (
           <div
             role="status"
             aria-live="polite"
-            className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs animate-in fade-in slide-in-from-top-2 duration-200 ${
+            className={`p-2 rounded-lg border flex items-start gap-2 text-xs animate-in fade-in slide-in-from-top-1 duration-150 ${
               toast.tone === "success"
                 ? "bg-emerald-50/90 border-emerald-200 text-emerald-900"
                 : toast.tone === "warning"
@@ -719,7 +719,7 @@ function CatalystCompanionCard({ onLaunchDemo }) {
             }`}
           >
             <CheckCircle2
-              size={16}
+              size={14}
               className={`shrink-0 mt-0.5 ${
                 toast.tone === "success"
                   ? "text-emerald-600"
@@ -728,9 +728,9 @@ function CatalystCompanionCard({ onLaunchDemo }) {
                   : "text-rose-600"
               }`}
             />
-            <div className="flex-1">
-              <strong className="font-semibold block">{toast.title}</strong>
-              <p className="mt-0.5 leading-relaxed">{toast.msg}</p>
+            <div className="flex-1 min-w-0">
+              <strong className="font-semibold block text-[11px]">{toast.title}</strong>
+              <p className="mt-0.5 text-[10.5px] leading-snug">{toast.msg}</p>
             </div>
           </div>
         )}
@@ -738,30 +738,30 @@ function CatalystCompanionCard({ onLaunchDemo }) {
         {activeTab === "voice" ? (
           <>
             {/* Senior Dossier Header */}
-            <div className="flex items-center justify-between p-3.5 bg-ui-canvas border border-ui-border-decorative rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-ui-blue text-white flex items-center justify-center font-serif font-bold text-sm shadow-sm">
+            <div className="flex items-center justify-between p-2 bg-ui-canvas border border-ui-border-decorative rounded-lg">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-ui-blue text-white flex items-center justify-center font-serif font-bold text-xs shadow-sm shrink-0">
                   RK
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-serif font-semibold text-base text-ui-text leading-none">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-serif font-semibold text-xs sm:text-sm text-ui-text leading-none">
                       Ramesh Kumar
                     </h3>
-                    <span className="text-[10px] font-sans font-semibold bg-ui-surface text-ui-text-secondary border border-ui-border-decorative px-2 py-0.5 rounded-full">
+                    <span className="text-[9px] font-sans font-semibold bg-ui-surface text-ui-text-secondary border border-ui-border-decorative px-1.5 py-0.2 rounded-full">
                       71 yrs
                     </span>
                   </div>
-                  <p className="text-xs text-ui-text-secondary mt-1">
-                    Hypertension &amp; Heart Care &bull; Care Manager: <span className="font-medium text-ui-text">Meera (Daughter)</span>
+                  <p className="text-[10.5px] text-ui-text-secondary mt-0.5">
+                    Hypertension Care &bull; Caregiver: <span className="font-medium text-ui-text">Meera (Daughter)</span>
                   </p>
                 </div>
               </div>
-              <div className="text-right">
-                <span className="text-[10px] font-mono font-bold text-ui-blue block uppercase tracking-wider">
+              <div className="text-right shrink-0">
+                <span className="text-[9.5px] font-mono font-bold text-ui-blue block uppercase tracking-wider">
                   Morning Dose
                 </span>
-                <span className="text-xs font-mono font-semibold text-ui-text">
+                <span className="text-[10.5px] font-mono font-semibold text-ui-text">
                   08:00 AM &bull; {doseStatus === "taken" ? (
                     <span className="text-emerald-700 font-bold">Taken ✓</span>
                   ) : doseStatus === "snoozed" ? (
@@ -774,30 +774,30 @@ function CatalystCompanionCard({ onLaunchDemo }) {
             </div>
 
             {/* Active Medication Card */}
-            <div className="p-4 bg-ui-surface border-l-4 border-l-ui-blue border border-ui-border-decorative rounded-xl shadow-ui-card">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="p-2.5 bg-ui-amber-subtle rounded-xl border border-ui-amber/30 text-ui-amber mt-0.5">
-                    <Pill size={18} className="text-ui-amber" aria-hidden="true" />
+            <div className="p-2.5 bg-ui-surface border-l-3 border-l-ui-blue border border-ui-border-decorative rounded-lg shadow-xs">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start gap-2">
+                  <div className="p-1.5 bg-ui-amber-subtle rounded-lg border border-ui-amber/30 text-ui-amber mt-0.5 shrink-0">
+                    <Pill size={15} className="text-ui-amber" aria-hidden="true" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-serif font-semibold text-base text-ui-text">Amlong 5mg</span>
-                      <span className="text-[10px] font-mono bg-ui-surface-subtle text-ui-text-secondary px-2 py-0.5 rounded font-semibold border border-ui-border-decorative/60">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-serif font-semibold text-xs sm:text-sm text-ui-text">Amlong 5mg</span>
+                      <span className="text-[9.5px] font-mono bg-ui-surface-subtle text-ui-text-secondary px-1.5 py-0.2 rounded font-semibold border border-ui-border-decorative/60">
                         1 Tab &bull; Post-Breakfast
                       </span>
                     </div>
-                    <p className="text-xs text-ui-text-secondary mt-1">
-                      Active Salt: <span className="font-mono text-ui-text font-medium">Amlodipine Besylate IP 5mg</span>
+                    <p className="text-[10.5px] text-ui-text-secondary mt-0.5">
+                      Salt: <span className="font-mono text-ui-text font-medium">Amlodipine Besylate IP 5mg</span>
                     </p>
-                    <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-emerald-800">
-                      <ShieldCheck size={13} className="text-emerald-700 shrink-0" aria-hidden="true" />
-                      <span>Clinical Safety Passed — Zero drug interactions detected</span>
+                    <div className="mt-1 flex items-center gap-1 text-[10px] font-medium text-emerald-800">
+                      <ShieldCheck size={12} className="text-emerald-700 shrink-0" aria-hidden="true" />
+                      <span>Zero drug interactions detected</span>
                     </div>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="inline-block text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                  <span className="inline-block text-[9.5px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full">
                     Jan Aushadhi: ₹6
                   </span>
                 </div>
@@ -805,34 +805,34 @@ function CatalystCompanionCard({ onLaunchDemo }) {
             </div>
 
             {/* Voice Companion Speech Bubble */}
-            <div className="relative p-4 sm:p-5 bg-gradient-to-br from-ui-canvas via-ui-surface to-ui-amber-subtle/30 border border-ui-border-decorative rounded-xl shadow-sm">
-              <div className="flex items-center justify-between mb-2 pb-2 border-b border-ui-border-decorative/60">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={14} className="text-ui-blue" aria-hidden="true" />
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-ui-text font-mono">
-                    Catalyst Senior Companion (Bilingual Voice)
+            <div className="relative p-2.5 bg-gradient-to-br from-ui-canvas via-ui-surface to-ui-amber-subtle/30 border border-ui-border-decorative rounded-lg shadow-xs">
+              <div className="flex items-center justify-between mb-1 pb-1 border-b border-ui-border-decorative/50">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles size={12} className="text-ui-blue" aria-hidden="true" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-ui-text font-mono">
+                    CareSetu Companion (Bilingual Voice)
                   </span>
                 </div>
-                <span className="text-[10px] font-mono font-medium text-ui-text-secondary bg-ui-surface px-2 py-0.5 rounded border border-ui-border-decorative/60">
+                <span className="text-[9px] font-mono font-medium text-ui-text-secondary bg-ui-surface px-1.5 py-0.2 rounded border border-ui-border-decorative/60">
                   Hindi &bull; English
                 </span>
               </div>
 
-              <p className="font-serif text-base sm:text-[17px] text-ui-text leading-relaxed italic">
+              <p className="font-serif text-xs sm:text-[13px] text-ui-text leading-snug italic">
                 &ldquo;Namaste Ramesh ji! Subah ka nashta ho gaya? BP wali goli{" "}
-                <span className="font-semibold underline decoration-ui-blue decoration-2 not-italic text-ui-blue">
+                <span className="font-semibold underline decoration-ui-blue decoration-1 not-italic text-ui-blue">
                   Amlong 5mg
                 </span>{" "}
                 lene ka samay ho gaya hai. Kya aapne le li?&rdquo;
               </p>
 
-              {/* Animated Audio Waveform with dynamic heights */}
-              <div className="flex items-center justify-between gap-1 h-10 mt-3 px-3 bg-ui-surface/90 rounded-xl border border-ui-border-decorative/80 overflow-hidden shadow-inner">
+              {/* Animated Audio Waveform with sleek mini bars */}
+              <div className="flex items-center justify-between gap-0.5 h-4 mt-1.5 px-2 bg-ui-surface/90 rounded border border-ui-border-decorative/80 overflow-hidden">
                 {[40, 65, 80, 45, 90, 70, 30, 85, 100, 60, 40, 95, 75, 50, 85, 60, 35, 70, 90, 55, 30, 80, 65, 45, 85, 50, 30, 60].map(
                   (h, i) => (
                     <div
                       key={i}
-                      className={`w-1 rounded-full transition-all duration-300 ${
+                      className={`w-0.5 sm:w-1 rounded-full transition-all duration-300 ${
                         i % 4 === 1
                           ? "bg-ui-blue"
                           : i % 4 === 3
@@ -840,7 +840,7 @@ function CatalystCompanionCard({ onLaunchDemo }) {
                           : "bg-ui-text-secondary"
                       }`}
                       style={{
-                        height: isPlaying ? `${Math.max(18, (h * ((i % 3) + 1)) % 100)}%` : "20%",
+                        height: isPlaying ? `${Math.max(25, (h * ((i % 3) + 1)) % 100)}%` : "25%",
                         opacity: isPlaying ? 0.9 : 0.35,
                       }}
                     />
@@ -851,44 +851,44 @@ function CatalystCompanionCard({ onLaunchDemo }) {
 
             {/* Interactive Confirmation Actions */}
             <div>
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-ui-text-secondary block mb-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-ui-text-secondary block mb-1">
                 Senior 1-Tap Response:
               </span>
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-3 gap-1.5">
                 <button
                   type="button"
                   onClick={() => handleAction("taken")}
-                  className={`min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl border transition-all flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
+                  className={`min-h-[34px] px-2 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
                     doseStatus === "taken"
-                      ? "bg-emerald-700 text-white border-emerald-800 shadow-sm"
+                      ? "bg-emerald-700 text-white border-emerald-800 shadow-xs"
                       : "bg-ui-surface text-ui-text border-ui-border-decorative hover:border-ui-blue/60 hover:bg-ui-surface-subtle"
                   }`}
                 >
-                  <Check size={15} className={doseStatus === "taken" ? "text-white" : "text-emerald-600"} aria-hidden="true" />
+                  <Check size={13} className={doseStatus === "taken" ? "text-white" : "text-emerald-600"} aria-hidden="true" />
                   <span>Haan, Le Li</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleAction("snoozed")}
-                  className={`min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl border transition-all flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
+                  className={`min-h-[34px] px-2 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
                     doseStatus === "snoozed"
-                      ? "bg-ui-text text-white border-ui-text shadow-sm"
+                      ? "bg-ui-text text-white border-ui-text shadow-xs"
                       : "bg-ui-surface text-ui-text border-ui-border-decorative hover:border-ui-blue/60 hover:bg-ui-surface-subtle"
                   }`}
                 >
-                  <CalendarClock size={15} className={doseStatus === "snoozed" ? "text-white" : "text-amber-600"} aria-hidden="true" />
+                  <CalendarClock size={13} className={doseStatus === "snoozed" ? "text-white" : "text-amber-600"} aria-hidden="true" />
                   <span>15 Min Baad</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleAction("missed")}
-                  className={`min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl border transition-all flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
+                  className={`min-h-[34px] px-2 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue ${
                     doseStatus === "missed"
-                      ? "bg-rose-700 text-white border-rose-800 shadow-sm"
+                      ? "bg-rose-700 text-white border-rose-800 shadow-xs"
                       : "bg-ui-surface text-ui-text border-ui-border-decorative hover:border-ui-blue/60 hover:bg-ui-surface-subtle"
                   }`}
                 >
-                  <AlertTriangle size={15} className={doseStatus === "missed" ? "text-white" : "text-rose-600"} aria-hidden="true" />
+                  <AlertTriangle size={13} className={doseStatus === "missed" ? "text-white" : "text-rose-600"} aria-hidden="true" />
                   <span>Nahi Li</span>
                 </button>
               </div>
@@ -897,79 +897,79 @@ function CatalystCompanionCard({ onLaunchDemo }) {
         ) : (
           <>
             {/* Care Circle View */}
-            <div className="p-4 bg-ui-canvas border border-ui-border-decorative rounded-xl space-y-3">
+            <div className="p-2.5 bg-ui-canvas border border-ui-border-decorative rounded-lg space-y-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-semibold text-ui-text">
-                  <KeyRound size={16} className="text-ui-blue" aria-hidden="true" />
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-ui-text">
+                  <KeyRound size={14} className="text-ui-blue" aria-hidden="true" />
                   <span>Passcode Care Circle Engine</span>
                 </div>
-                <span className="text-[10px] font-mono font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                <span className="text-[9px] font-mono font-semibold text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200">
                   Encrypted &bull; 10m TTL
                 </span>
               </div>
-              <div className="p-3 bg-ui-surface border border-dashed border-ui-blue/40 rounded-xl flex items-center justify-between">
+              <div className="p-2 bg-ui-surface border border-dashed border-ui-blue/40 rounded-lg flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-ui-text-secondary font-semibold block">
+                  <span className="text-[9px] uppercase tracking-wider text-ui-text-secondary font-semibold block">
                     Temporary Senior Access Passcode
                   </span>
-                  <span className="font-mono text-lg font-bold text-ui-blue tracking-widest">
+                  <span className="font-mono text-base font-bold text-ui-blue tracking-wider">
                     8492 &bull; 3105
                   </span>
                 </div>
-                <span className="text-xs font-semibold text-ui-blue bg-ui-blue/10 px-2.5 py-1 rounded-lg">
-                  Valid: 08:42 Left
+                <span className="text-[10px] font-semibold text-ui-blue bg-ui-blue/10 px-2 py-0.5 rounded">
+                  08:42 Left
                 </span>
               </div>
-              <p className="text-xs text-ui-text-secondary leading-relaxed">
+              <p className="text-[10.5px] text-ui-text-secondary leading-tight">
                 Ramesh generates a one-time passcode to grant daughter Meera &ldquo;Care Manager&rdquo; rights without exposing master credentials.
               </p>
             </div>
 
             {/* Connected Circle Members List */}
-            <div className="space-y-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-ui-text-secondary block">
+            <div className="space-y-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-ui-text-secondary block">
                 Synchronized Family Circle (3 Active):
               </span>
-              <div className="divide-y divide-ui-border-decorative/60 border border-ui-border-decorative rounded-xl overflow-hidden bg-ui-surface">
-                <div className="p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-ui-blue text-white flex items-center justify-center text-xs font-bold font-serif">
+              <div className="divide-y divide-ui-border-decorative/60 border border-ui-border-decorative rounded-lg overflow-hidden bg-ui-surface">
+                <div className="p-1.5 px-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-ui-blue text-white flex items-center justify-center text-[10px] font-bold font-serif shrink-0">
                       RK
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-ui-text block leading-none">Ramesh Kumar</span>
-                      <span className="text-[10px] text-ui-text-secondary">Patient Owner (Full Control)</span>
+                      <span className="text-[11px] font-semibold text-ui-text block leading-none">Ramesh Kumar</span>
+                      <span className="text-[9px] text-ui-text-secondary">Patient Owner (Full Control)</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold text-ui-blue bg-ui-surface-subtle px-2 py-0.5 rounded border border-ui-border-decorative/60">
+                  <span className="text-[9px] font-semibold text-ui-blue bg-ui-surface-subtle px-1.5 py-0.2 rounded border border-ui-border-decorative/60">
                     Self
                   </span>
                 </div>
-                <div className="p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs font-bold font-serif">
+                <div className="p-1.5 px-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center text-[10px] font-bold font-serif shrink-0">
                       MK
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-ui-text block leading-none">Meera Kulkarni</span>
-                      <span className="text-[10px] text-ui-text-secondary">Daughter &bull; Care Manager</span>
+                      <span className="text-[11px] font-semibold text-ui-text block leading-none">Meera Kulkarni</span>
+                      <span className="text-[9px] text-ui-text-secondary">Daughter &bull; Care Manager</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="text-[9px] font-semibold text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
                     Sync Active
                   </span>
                 </div>
-                <div className="p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold font-serif">
+                <div className="p-1.5 px-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold font-serif shrink-0">
                       DS
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-ui-text block leading-none">Dr. R. K. Sharma</span>
-                      <span className="text-[10px] text-ui-text-secondary">Cardiologist &bull; Clinical Viewer</span>
+                      <span className="text-[11px] font-semibold text-ui-text block leading-none">Dr. R. K. Sharma</span>
+                      <span className="text-[9px] text-ui-text-secondary">Cardiologist &bull; Clinical Viewer</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold text-ui-text-secondary bg-ui-surface-subtle px-2 py-0.5 rounded border border-ui-border-decorative/60">
+                  <span className="text-[9px] font-semibold text-ui-text-secondary bg-ui-surface-subtle px-1.5 py-0.2 rounded border border-ui-border-decorative/60">
                     Read-Only
                   </span>
                 </div>
@@ -979,49 +979,49 @@ function CatalystCompanionCard({ onLaunchDemo }) {
         )}
 
         {/* Proactive Multi-Channel Sync Strip */}
-        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-ui-border-decorative/60">
-          <div className="p-2.5 rounded-lg bg-ui-canvas border border-ui-border-decorative/60 text-center">
-            <Mail size={14} className="mx-auto text-ui-blue mb-1" aria-hidden="true" />
-            <span className="text-[10px] font-bold text-ui-text block font-mono">EMAIL</span>
-            <span className="text-[9px] text-emerald-700 font-semibold">Dispatched ✓</span>
+        <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-ui-border-decorative/60">
+          <div className="p-1.5 rounded-md bg-ui-canvas border border-ui-border-decorative/60 text-center">
+            <Mail size={12} className="mx-auto text-ui-blue mb-0.5" aria-hidden="true" />
+            <span className="text-[9px] font-bold text-ui-text block font-mono">EMAIL</span>
+            <span className="text-[8px] text-emerald-700 font-semibold">Dispatched ✓</span>
           </div>
-          <div className="p-2.5 rounded-lg bg-ui-canvas border border-ui-border-decorative/60 text-center">
-            <MessageCircleHeart size={14} className="mx-auto text-emerald-600 mb-1" aria-hidden="true" />
-            <span className="text-[10px] font-bold text-ui-text block font-mono">WHATSAPP</span>
-            <span className="text-[9px] text-emerald-700 font-semibold">Synced ✓</span>
+          <div className="p-1.5 rounded-md bg-ui-canvas border border-ui-border-decorative/60 text-center">
+            <MessageCircleHeart size={12} className="mx-auto text-emerald-600 mb-0.5" aria-hidden="true" />
+            <span className="text-[9px] font-bold text-ui-text block font-mono">WHATSAPP</span>
+            <span className="text-[8px] text-emerald-700 font-semibold">Synced ✓</span>
           </div>
-          <div className="p-2.5 rounded-lg bg-ui-canvas border border-ui-border-decorative/60 text-center">
-            <PhoneCall size={14} className="mx-auto text-amber-600 mb-1" aria-hidden="true" />
-            <span className="text-[10px] font-bold text-ui-text block font-mono">TELEPHONY</span>
-            <span className="text-[9px] text-ui-text-secondary font-semibold">Standby</span>
+          <div className="p-1.5 rounded-md bg-ui-canvas border border-ui-border-decorative/60 text-center">
+            <PhoneCall size={12} className="mx-auto text-amber-600 mb-0.5" aria-hidden="true" />
+            <span className="text-[9px] font-bold text-ui-text block font-mono">TELEPHONY</span>
+            <span className="text-[8px] text-ui-text-secondary font-semibold">Standby</span>
           </div>
         </div>
       </div>
 
       {/* Card Footer: Voice Scrubber & Workspace Demo Launcher */}
-      <div className="p-4 sm:p-5 pt-3 border-t border-ui-border-decorative/80 bg-ui-canvas/50 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="px-3.5 py-2 border-t border-ui-border-decorative/80 bg-ui-canvas/50 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           <button
             type="button"
             onClick={handleToggleVoice}
-            className="w-10 h-10 rounded-xl bg-ui-blue hover:bg-ui-blue-hover text-white flex items-center justify-center transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue shrink-0"
+            className="w-7 h-7 rounded-lg bg-ui-blue hover:bg-ui-blue-hover text-white flex items-center justify-center transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue shrink-0"
             title={isPlaying ? "Pause voice readout" : "Listen in Hindi"}
             aria-label={isPlaying ? "Pause voice readout" : "Listen in Hindi"}
           >
             {isPlaying ? (
-              <Pause size={16} className="fill-current" aria-hidden="true" />
+              <Pause size={13} className="fill-current" aria-hidden="true" />
             ) : (
-              <Play size={16} className="fill-current translate-x-0.5" aria-hidden="true" />
+              <Play size={13} className="fill-current translate-x-0.5" aria-hidden="true" />
             )}
           </button>
           <div className="flex-1 min-w-0">
-            <div className="flex justify-between text-[11px] font-mono text-ui-text-secondary mb-1">
+            <div className="flex justify-between text-[10px] font-mono text-ui-text-secondary mb-0.5">
               <span className="font-semibold text-ui-text truncate">
-                {isSpeaking ? "Speaking (Web Speech)..." : isPlaying ? "Live audio playback" : "Voice paused"}
+                {isSpeaking ? "Speaking..." : isPlaying ? "Live audio" : "Voice paused"}
               </span>
               <span className="shrink-0">00:34 / 01:30</span>
             </div>
-            <div className="h-1.5 bg-ui-border-decorative rounded-full overflow-hidden">
+            <div className="h-1 bg-ui-border-decorative rounded-full overflow-hidden">
               <div
                 className="h-full bg-ui-blue rounded-full transition-all duration-300"
                 style={{ width: isPlaying ? "42%" : "25%" }}
@@ -1033,22 +1033,22 @@ function CatalystCompanionCard({ onLaunchDemo }) {
         <button
           type="button"
           onClick={onLaunchDemo}
-          className="min-h-[40px] px-4 py-2 bg-ui-text hover:bg-ui-blue text-white rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue shrink-0"
+          className="min-h-[32px] px-3 py-1 bg-ui-text hover:bg-ui-blue text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-blue shrink-0"
         >
           <span>Open Demo</span>
-          <ArrowRight size={13} aria-hidden="true" />
+          <ArrowRight size={12} aria-hidden="true" />
         </button>
       </div>
 
       {/* Live Care Circle Notification Ticker */}
-      <div className="px-4 py-2.5 bg-ui-surface-subtle/80 border-t border-ui-border-decorative/60 flex items-center justify-between text-[11px] text-ui-text-secondary">
+      <div className="px-3 py-1.5 bg-ui-surface-subtle/80 border-t border-ui-border-decorative/60 flex items-center justify-between text-[10px] text-ui-text-secondary">
         <span className="flex items-center gap-1.5 truncate">
-          <HeartHandshake size={14} className="text-ui-blue shrink-0" aria-hidden="true" />
+          <HeartHandshake size={12} className="text-ui-blue shrink-0" aria-hidden="true" />
           <span className="truncate">
             Care Circle: <strong>Meera Kulkarni</strong> received instant adherence confirmation
           </span>
         </span>
-        <span className="font-mono text-[10px] text-ui-text-secondary font-medium shrink-0 ml-2">08:14 AM</span>
+        <span className="font-mono text-[9px] text-ui-text-secondary font-medium shrink-0 ml-2">08:14 AM</span>
       </div>
     </div>
   );
