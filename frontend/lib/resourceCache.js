@@ -29,9 +29,7 @@ export const DEFAULT_TTL_MS = 15000;
 export function buildCacheKey(path, actorToken = null, patientId = null) {
   const token = actorToken !== null ? actorToken : getLocalToken();
   const pid = patientId !== null && patientId !== undefined ? patientId : getLocalPatientId();
-  const tokenFingerprint = token ? String(token).slice(-16) : "anon";
-  const patientScope = pid ? String(pid) : "self";
-  return `${tokenFingerprint}:${patientScope}:${path}`;
+  return JSON.stringify([token || null, pid || null, path]);
 }
 
 export function getCachedResource(key, maxAgeMs = DEFAULT_TTL_MS) {
@@ -54,12 +52,17 @@ export function setCachedResource(key, data) {
 
 export function invalidateResource(pathPrefix = "") {
   if (!pathPrefix) {
-    cacheStore.clear();
+    clearResourceCache();
     return;
   }
   for (const key of cacheStore.keys()) {
-    if (key.includes(pathPrefix)) {
+    if (JSON.parse(key)[2].startsWith(pathPrefix)) {
       cacheStore.delete(key);
+    }
+  }
+  for (const key of inFlightPromises.keys()) {
+    if (JSON.parse(key)[2].startsWith(pathPrefix)) {
+      inFlightPromises.delete(key);
     }
   }
 }
@@ -91,20 +94,19 @@ export async function fetchWithResourceCache(path, fetchFn, options = {}) {
   // can abort the promise that the next mounted consumer is waiting on.
   let sharedPromise = inFlightPromises.get(key);
   if (!sharedPromise) {
-    sharedPromise = (async () => {
-      try {
-        const data = await fetchFn();
-        if (!skipCache && data !== null && data !== undefined) {
+    sharedPromise = Promise.resolve().then(fetchFn).then(
+      (data) => {
+        if (inFlightPromises.get(key) === sharedPromise && !skipCache && data !== null && data !== undefined) {
           setCachedResource(key, data);
         }
         return data;
-      } finally {
-        // Do not delete a newer request started after cache clearing.
-        if (inFlightPromises.get(key) === sharedPromise) {
-          inFlightPromises.delete(key);
-        }
       }
-    })();
+    ).finally(() => {
+      // Do not delete a newer request started after cache clearing.
+      if (inFlightPromises.get(key) === sharedPromise) {
+        inFlightPromises.delete(key);
+      }
+    });
     inFlightPromises.set(key, sharedPromise);
   }
 
@@ -137,12 +139,6 @@ export async function fetchWithResourceCache(path, fetchFn, options = {}) {
 // Auto-register cache flush on logout and patient-switch events
 if (typeof window !== "undefined") {
   window.addEventListener("catalyst:logout", () => {
-    clearResourceCache();
-  });
-  window.addEventListener("catalyst:logout", () => {
-    clearResourceCache();
-  });
-  window.addEventListener("catalyst:patient_switched", () => {
     clearResourceCache();
   });
   window.addEventListener("catalyst:patient_switched", () => {

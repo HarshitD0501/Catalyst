@@ -19,6 +19,11 @@ console.log("Running resource cache and deduplication verification tests...");
 
   assert.notStrictEqual(key1, key2, "Different patients must have distinct cache keys");
   assert.notStrictEqual(key1, key3, "Different actors must have distinct cache keys");
+  assert.notStrictEqual(
+    buildCacheKey("/summary", "first-1234567890123456", "patient"),
+    buildCacheKey("/summary", "second-1234567890123456", "patient"),
+    "Tokens with the same suffix must remain isolated"
+  );
   assert.strictEqual(
     key1,
     buildCacheKey("/summary", "token-patient-1234567890", "p-shanti"),
@@ -73,6 +78,7 @@ console.log("Running resource cache and deduplication verification tests...");
     patientId: "pid-abort",
   });
 
+  await Promise.resolve();
   firstController.abort(new DOMException("Effect cleanup", "AbortError"));
   await assert.rejects(first, { name: "AbortError" });
   resolveFetch({ status: "ok" });
@@ -128,4 +134,21 @@ console.log("Running resource cache and deduplication verification tests...");
   console.log("PASS: Test 5 - clearResourceCache flushes all memory store keys.");
 }
 
-console.log("\nALL 5 RESOURCE CACHE & DEDUPLICATION TESTS PASSED SUCCESSFULLY!");
+// Invalidating while a request is pending must not allow its stale result to
+// populate the cache or be reused by requests started after the mutation.
+for (const invalidate of [() => invalidateResource("/race"), () => invalidateResource(), clearResourceCache]) {
+  clearResourceCache();
+  let resolveOld;
+  const options = { actorToken: "actor", patientId: "patient" };
+  const old = fetchWithResourceCache("/race", () => new Promise((resolve) => { resolveOld = resolve; }), options);
+  await Promise.resolve();
+  invalidate();
+  const fresh = fetchWithResourceCache("/race", async () => ({ version: "fresh" }), options);
+  assert.deepStrictEqual(await fresh, { version: "fresh" });
+  resolveOld({ version: "stale" });
+  await old;
+  assert.deepStrictEqual(await fetchWithResourceCache("/race", () => { throw new Error("unexpected fetch"); }, options), { version: "fresh" });
+}
+console.log("PASS: Pending requests cannot restore stale data after invalidation or session clear.");
+
+console.log("\nALL RESOURCE CACHE & DEDUPLICATION TESTS PASSED SUCCESSFULLY!");
